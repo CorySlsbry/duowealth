@@ -265,11 +265,11 @@ export default function DashboardLayoutClient({
         >
           {sidebarOpen ? (
             <div className="font-bold text-lg tracking-tight">
-              <span className="text-[#6366f1]">Builder</span><span className="text-[#e8e8f0]">CFO</span>
-              <div className="text-[10px] text-[#8888a0] font-normal">by Salisbury Bookkeeping</div>
+              <span className="text-[#10B981]">Builder</span><span className="text-[#e8e8f0]">CFO</span>
+              <div className="text-[10px] text-[#8888a0] font-normal">by DuoWealth</div>
             </div>
           ) : (
-            <div className="w-10 h-10 rounded-lg bg-[#6366f1] flex items-center justify-center font-bold text-sm">
+            <div className="w-10 h-10 rounded-lg bg-[#10B981] flex items-center justify-center font-bold text-sm">
               BC
             </div>
           )}
@@ -285,7 +285,7 @@ export default function DashboardLayoutClient({
                 <button
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                     active
-                      ? 'bg-[#6366f1] text-white shadow-lg shadow-[#6366f1]/20'
+                      ? 'bg-[#10B981] text-white shadow-lg shadow-[#10B981]/20'
                       : 'text-[#8888a0] hover:text-[#e8e8f0] hover:bg-[#2a2a3d]'
                   }`}
                 >
@@ -320,7 +320,7 @@ export default function DashboardLayoutClient({
               sidebarOpen ? 'bg-[#1a1a26]' : ''
             }`}
           >
-            <div className="w-10 h-10 rounded-full bg-[#6366f1] flex items-center justify-center font-semibold text-sm flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-[#10B981] flex items-center justify-center font-semibold text-sm flex-shrink-0">
               {userProfile.initials}
             </div>
             {sidebarOpen && (
@@ -360,7 +360,7 @@ export default function DashboardLayoutClient({
             {/* Mobile Header */}
             <div className="h-16 border-b border-[#2a2a3d] flex items-center justify-between px-4">
               <div className="font-bold text-lg tracking-tight">
-                <span className="text-[#6366f1]">Builder</span><span className="text-[#e8e8f0]">CFO</span>
+                <span className="text-[#10B981]">Builder</span><span className="text-[#e8e8f0]">CFO</span>
               </div>
               <button
                 onClick={() => setMobileMenuOpen(false)}
@@ -381,7 +381,7 @@ export default function DashboardLayoutClient({
                       onClick={() => setMobileMenuOpen(false)}
                       className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                         active
-                          ? 'bg-[#6366f1] text-white shadow-lg shadow-[#6366f1]/20'
+                          ? 'bg-[#10B981] text-white shadow-lg shadow-[#10B981]/20'
                           : 'text-[#8888a0] hover:text-[#e8e8f0] hover:bg-[#2a2a3d]'
                       }`}
                     >
@@ -396,7 +396,7 @@ export default function DashboardLayoutClient({
             {/* Mobile User Profile & Logout */}
             <div className="border-t border-[#2a2a3d] p-3 space-y-2">
               <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#1a1a26]">
-                <div className="w-10 h-10 rounded-full bg-[#6366f1] flex items-center justify-center font-semibold text-sm flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-[#10B981] flex items-center justify-center font-semibold text-sm flex-shrink-0">
                   {userProfile.initials}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -443,7 +443,7 @@ export default function DashboardLayoutClient({
               <div className="relative">
                 <button
                   onClick={() => setClientDropdownOpen(!clientDropdownOpen)}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-[#1a1a26] border border-[#2a2a3d] rounded-lg text-sm hover:border-[#6366f1] transition-colors"
+                  className="flex items-center gap-2 px-3 py-1.5 bg-[#1a1a26] border border-[#2a2a3d] rounded-lg text-sm hover:border-[#10B981] transition-colors"
                 >
                   <span className="text-[#e8e8f0] max-w-[160px] truncate">{selectedClient?.name || 'Select Client'}</span>
                   <svg className={`w-4 h-4 text-[#8888a0] transition-transform ${clientDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -458,7 +458,7 @@ export default function DashboardLayoutClient({
                         onClick={() => handleClientSwitch(client.id)}
                         className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                           client.id === selectedClientId
-                            ? 'bg-[#6366f1]/20 text-[#6366f1]'
+                            ? 'bg-[#10B981]/20 text-[#10B981]'
                             : 'text-[#e8e8f0] hover:bg-[#2a2a3d]'
                         }`}
                       >
@@ -474,7 +474,7 @@ export default function DashboardLayoutClient({
                           setClientDropdownOpen(false);
                           window.location.href = '/api/qbo/connect';
                         }}
-                        className="w-full text-left px-4 py-2.5 text-sm text-[#6366f1] hover:bg-[#2a2a3d] transition-colors"
+                        className="w-full text-left px-4 py-2.5 text-sm text-[#10B981] hover:bg-[#2a2a3d] transition-colors"
                       >
                         + Connect New QBO Company
                       </button>
@@ -488,9 +488,9 @@ export default function DashboardLayoutClient({
               <div className="relative">
                 <button
                   onClick={() => setLocationDropdownOpen(!locationDropdownOpen)}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-[#1a1a26] border border-[#2a2a3d] rounded-lg text-sm hover:border-[#6366f1] transition-colors"
+                  className="flex items-center gap-2 px-3 py-1.5 bg-[#1a1a26] border border-[#2a2a3d] rounded-lg text-sm hover:border-[#10B981] transition-colors"
                 >
-                  <MapPin size={14} className="text-[#6366f1] flex-shrink-0" />
+                  <MapPin size={14} className="text-[#10B981] flex-shrink-0" />
                   <span className="text-[#e8e8f0] max-w-[140px] truncate">
                     {selectedLocation?.name ?? 'All Locations'}
                   </span>
@@ -511,7 +511,7 @@ export default function DashboardLayoutClient({
                       }}
                       className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                         selectedLocationId === null
-                          ? 'bg-[#6366f1]/20 text-[#6366f1]'
+                          ? 'bg-[#10B981]/20 text-[#10B981]'
                           : 'text-[#e8e8f0] hover:bg-[#2a2a3d]'
                       }`}
                     >
@@ -523,7 +523,7 @@ export default function DashboardLayoutClient({
                         onClick={() => handleLocationSwitch(loc.id)}
                         className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                           loc.id === selectedLocationId
-                            ? 'bg-[#6366f1]/20 text-[#6366f1]'
+                            ? 'bg-[#10B981]/20 text-[#10B981]'
                             : 'text-[#e8e8f0] hover:bg-[#2a2a3d]'
                         }`}
                       >
@@ -539,7 +539,7 @@ export default function DashboardLayoutClient({
                       <a
                         href="/dashboard/locations"
                         onClick={() => setLocationDropdownOpen(false)}
-                        className="block px-4 py-2.5 text-sm text-[#6366f1] hover:bg-[#2a2a3d] transition-colors"
+                        className="block px-4 py-2.5 text-sm text-[#10B981] hover:bg-[#2a2a3d] transition-colors"
                       >
                         Manage Locations
                       </a>
@@ -627,7 +627,7 @@ export default function DashboardLayoutClient({
                       onChange={(e) => setBugMessage(e.target.value)}
                       placeholder="What were you doing? What did you expect to happen? What actually happened?"
                       rows={5}
-                      className="w-full bg-[#1a1a26] border border-[#2a2a3d] focus:border-[#6366f1] rounded-xl px-3 py-2.5 text-sm text-[#e8e8f0] placeholder-[#8888a0] outline-none transition-colors resize-none"
+                      className="w-full bg-[#1a1a26] border border-[#2a2a3d] focus:border-[#10B981] rounded-xl px-3 py-2.5 text-sm text-[#e8e8f0] placeholder-[#8888a0] outline-none transition-colors resize-none"
                       autoFocus
                     />
                     <div className="flex gap-3 mt-4">
@@ -640,7 +640,7 @@ export default function DashboardLayoutClient({
                       <button
                         onClick={handleBugSubmit}
                         disabled={!bugMessage.trim() || bugSubmitting}
-                        className="flex-1 px-4 py-2.5 bg-[#6366f1] hover:bg-[#818cf8] disabled:opacity-40 disabled:cursor-not-allowed rounded-xl text-sm font-semibold text-white transition-colors"
+                        className="flex-1 px-4 py-2.5 bg-[#10B981] hover:bg-[#818cf8] disabled:opacity-40 disabled:cursor-not-allowed rounded-xl text-sm font-semibold text-white transition-colors"
                       >
                         {bugSubmitting ? 'Sending...' : 'Send Report'}
                       </button>
