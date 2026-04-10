@@ -16,7 +16,7 @@
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
-const SCHEMA = process.env.APP_SCHEMA || "public";
+const SCHEMA = process.env.NEXT_PUBLIC_APP_SCHEMA || "public";
 const COUPON_ID = process.env.STRIPE_REFERRAL_COUPON_ID || "REFER2_20OFF";
 
 function adminClient() {
