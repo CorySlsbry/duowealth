@@ -43,10 +43,10 @@ export default function LoginPage() {
         {/* Branding */}
         <div className="mb-8 text-center">
           <h1 className="font-bold text-2xl tracking-tight mb-1">
-            <span className="text-[#6366f1]">Builder</span><span className="text-[#e8e8f0]">CFO</span>
+            <span className="text-[#10B981]">Builder</span><span className="text-[#e8e8f0]">CFO</span>
           </h1>
           <p className="text-sm text-[#8888a0]">
-            by Salisbury Bookkeeping
+            by DuoWealth
           </p>
         </div>
 
@@ -67,7 +67,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@company.com"
               required
-              className="w-full px-4 py-2 rounded bg-[#0a0a0f] border border-[#1e1e2e] text-[#e8e8f0] placeholder-[#8888a0] focus:outline-none focus:border-[#6366f1] transition"
+              className="w-full px-4 py-2 rounded bg-[#0a0a0f] border border-[#1e1e2e] text-[#e8e8f0] placeholder-[#8888a0] focus:outline-none focus:border-[#10B981] transition"
             />
           </div>
 
@@ -86,7 +86,7 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full px-4 py-2 rounded bg-[#0a0a0f] border border-[#1e1e2e] text-[#e8e8f0] placeholder-[#8888a0] focus:outline-none focus:border-[#6366f1] transition"
+              className="w-full px-4 py-2 rounded bg-[#0a0a0f] border border-[#1e1e2e] text-[#e8e8f0] placeholder-[#8888a0] focus:outline-none focus:border-[#10B981] transition"
             />
           </div>
 
@@ -101,7 +101,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full px-4 py-2 rounded font-semibold text-white bg-[#6366f1] hover:bg-[#5558d9] disabled:opacity-50 disabled:cursor-not-allowed transition"
+            className="w-full px-4 py-2 rounded font-semibold text-white bg-[#10B981] hover:bg-[#5558d9] disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
@@ -113,7 +113,7 @@ export default function LoginPage() {
             <span className="text-[#8888a0]">Don't have an account? </span>
             <Link
               href="/signup"
-              className="text-[#6366f1] hover:text-[#7c7fe5] font-medium transition"
+              className="text-[#10B981] hover:text-[#7c7fe5] font-medium transition"
             >
               Start your free trial
             </Link>
