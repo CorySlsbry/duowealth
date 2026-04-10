@@ -16,9 +16,20 @@ import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-12-18.acacia' as any,
-});
+// Lazy init — avoids "apiKey not provided" error at build time
+let _stripe: Stripe | null = null;
+function getStripeClient(): Stripe {
+  if (!_stripe) {
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_placeholder', {
+      apiVersion: '2024-12-18.acacia' as any,
+    });
+  }
+  return _stripe;
+}
+const stripe = {
+  webhooks: { constructEvent: (...args: any[]) => getStripeClient().webhooks.constructEvent(...args as [any, any, any]) },
+  subscriptions: { retrieve: (id: string) => getStripeClient().subscriptions.retrieve(id) },
+};
 
 function createAdminClient() {
   return createClient(

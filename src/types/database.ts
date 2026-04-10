@@ -1,463 +1,155 @@
 /**
- * Supabase database type definitions
- * Generated from database schema
+ * DuoWealth — Supabase database type definitions
  */
 
 export type Database = {
   public: {
     Tables: {
-      organizations: {
+      couples: {
         Row: {
           id: string;
+          name: string | null;
+          invite_code: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name?: string | null;
+          invite_code?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string | null;
+          invite_code?: string | null;
+          created_at?: string;
+        };
+      };
+      couple_members: {
+        Row: {
+          id: string;
+          couple_id: string;
+          user_id: string;
+          role: 'primary' | 'partner';
+          display_name: string | null;
+          monthly_income: number | null;
+          joined_at: string;
+        };
+        Insert: {
+          id?: string;
+          couple_id: string;
+          user_id: string;
+          role?: 'primary' | 'partner';
+          display_name?: string | null;
+          monthly_income?: number | null;
+          joined_at?: string;
+        };
+        Update: {
+          id?: string;
+          couple_id?: string;
+          user_id?: string;
+          role?: 'primary' | 'partner';
+          display_name?: string | null;
+          monthly_income?: number | null;
+          joined_at?: string;
+        };
+      };
+      accounts: {
+        Row: {
+          id: string;
+          couple_id: string;
+          owner_user_id: string | null;
           name: string;
-          slug: string;
-          qbo_realm_id: string | null;
-          qbo_access_token: string | null;
-          qbo_refresh_token: string | null;
-          qbo_token_expires_at: string | null;
-          stripe_customer_id: string | null;
-          subscription_status: "trialing" | "active" | "past_due" | "canceled";
-          plan: "basic" | "pro" | "enterprise";
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          slug: string;
-          qbo_realm_id?: string | null;
-          qbo_access_token?: string | null;
-          qbo_refresh_token?: string | null;
-          qbo_token_expires_at?: string | null;
-          stripe_customer_id?: string | null;
-          subscription_status?: "trialing" | "active" | "past_due" | "canceled";
-          plan?: "basic" | "pro" | "enterprise";
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          slug?: string;
-          qbo_realm_id?: string | null;
-          qbo_access_token?: string | null;
-          qbo_refresh_token?: string | null;
-          qbo_token_expires_at?: string | null;
-          stripe_customer_id?: string | null;
-          subscription_status?: "trialing" | "active" | "past_due" | "canceled";
-          plan?: "basic" | "pro" | "enterprise";
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      profiles: {
-        Row: {
-          id: string;
-          email: string;
-          full_name: string | null;
-          organization_id: string | null;
-          role: "owner" | "admin" | "viewer";
-          platform_role: "user" | "admin" | "superadmin";
-          avatar_url: string | null;
+          type: 'checking' | 'savings' | 'credit_card' | 'investment' | 'other';
+          balance: number;
+          is_joint: boolean;
+          institution_name: string | null;
+          last_synced_at: string | null;
           created_at: string;
         };
-        Insert: {
-          id: string;
-          email: string;
-          full_name?: string | null;
-          organization_id?: string | null;
-          role?: "owner" | "admin" | "viewer";
-          platform_role?: "user" | "admin" | "superadmin";
-          avatar_url?: string | null;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          email?: string;
-          full_name?: string | null;
-          organization_id?: string | null;
-          role?: "owner" | "admin" | "viewer";
-          platform_role?: "user" | "admin" | "superadmin";
-          avatar_url?: string | null;
-          created_at?: string;
-        };
+        Insert: Partial<Database['public']['Tables']['accounts']['Row']> & { couple_id: string; name: string };
+        Update: Partial<Database['public']['Tables']['accounts']['Row']>;
       };
-      dashboard_snapshots: {
+      transactions: {
         Row: {
           id: string;
-          organization_id: string;
-          data: Record<string, any>;
-          pulled_at: string;
-        };
-        Insert: {
-          id?: string;
-          organization_id: string;
-          data: Record<string, any>;
-          pulled_at?: string;
-        };
-        Update: {
-          id?: string;
-          organization_id?: string;
-          data?: Record<string, any>;
-          pulled_at?: string;
-        };
-      };
-      integration_connections: {
-        Row: {
-          id: string;
-          organization_id: string;
-          provider: string;
-          status: string;
-          access_token: string | null;
-          refresh_token: string | null;
-          token_expires_at: string | null;
-          api_key: string | null;
-          external_account_id: string | null;
-          external_account_name: string | null;
-          config: Record<string, any>;
-          last_sync_at: string | null;
-          last_sync_status: string;
-          last_sync_error: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          organization_id: string;
-          provider: string;
-          status?: string;
-          access_token?: string | null;
-          refresh_token?: string | null;
-          token_expires_at?: string | null;
-          api_key?: string | null;
-          external_account_id?: string | null;
-          external_account_name?: string | null;
-          config?: Record<string, any>;
-          last_sync_at?: string | null;
-          last_sync_status?: string;
-          last_sync_error?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          organization_id?: string;
-          provider?: string;
-          status?: string;
-          access_token?: string | null;
-          refresh_token?: string | null;
-          token_expires_at?: string | null;
-          api_key?: string | null;
-          external_account_id?: string | null;
-          external_account_name?: string | null;
-          config?: Record<string, any>;
-          last_sync_at?: string | null;
-          last_sync_status?: string;
-          last_sync_error?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      sync_jobs: {
-        Row: {
-          id: string;
-          organization_id: string;
-          integration_id: string;
-          provider: string;
-          status: string;
-          started_at: string;
-          completed_at: string | null;
-          records_synced: number;
-          error_message: string | null;
-          sync_type: string;
-          metadata: Record<string, any>;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          organization_id: string;
-          integration_id: string;
-          provider: string;
-          status?: string;
-          started_at?: string;
-          completed_at?: string | null;
-          records_synced?: number;
-          error_message?: string | null;
-          sync_type?: string;
-          metadata?: Record<string, any>;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          organization_id?: string;
-          integration_id?: string;
-          provider?: string;
-          status?: string;
-          started_at?: string;
-          completed_at?: string | null;
-          records_synced?: number;
-          error_message?: string | null;
-          sync_type?: string;
-          metadata?: Record<string, any>;
-          created_at?: string;
-        };
-      };
-      normalized_projects: {
-        Row: {
-          id: string;
-          organization_id: string;
-          source: string;
-          external_id: string;
-          name: string;
-          customer_name: string | null;
-          address: string | null;
-          status: string;
-          project_type: string | null;
-          start_date: string | null;
-          estimated_completion: string | null;
-          actual_completion: string | null;
-          contract_amount: number;
-          estimated_cost: number;
-          actual_cost: number;
-          percent_complete: number;
-          change_orders_amount: number;
-          budget_remaining: number;
-          profit_margin: number;
-          costs_to_date: number;
-          billings_to_date: number;
-          earned_revenue: number;
-          over_under_billing: number;
-          retainage_receivable: number;
-          retainage_payable: number;
-          raw_data: Record<string, any>;
-          last_synced: string;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          organization_id: string;
-          source: string;
-          external_id: string;
-          name: string;
-          [key: string]: any;
-        };
-        Update: {
-          [key: string]: any;
-        };
-      };
-      normalized_contacts: {
-        Row: {
-          id: string;
-          organization_id: string;
-          source: string;
-          external_id: string;
-          first_name: string | null;
-          last_name: string | null;
-          email: string | null;
-          phone: string | null;
-          company: string | null;
-          title: string | null;
-          contact_type: string;
-          tags: string[];
-          raw_data: Record<string, any>;
-          last_synced: string;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          organization_id: string;
-          source: string;
-          external_id: string;
-          [key: string]: any;
-        };
-        Update: {
-          [key: string]: any;
-        };
-      };
-      normalized_deals: {
-        Row: {
-          id: string;
-          organization_id: string;
-          source: string;
-          external_id: string;
-          name: string;
-          contact_name: string | null;
-          company_name: string | null;
+          couple_id: string;
+          account_id: string | null;
+          owner_user_id: string | null;
           amount: number;
-          stage: string | null;
-          probability: number;
-          weighted_amount: number;
-          expected_close_date: string | null;
-          created_date: string | null;
-          last_activity_date: string | null;
-          deal_type: string | null;
-          source_campaign: string | null;
+          description: string | null;
+          category: string | null;
+          is_joint: boolean;
+          date: string;
+          tags: string[] | null;
           notes: string | null;
-          raw_data: Record<string, any>;
-          last_synced: string;
           created_at: string;
         };
-        Insert: {
-          id?: string;
-          organization_id: string;
-          source: string;
-          external_id: string;
+        Insert: Partial<Database['public']['Tables']['transactions']['Row']> & { couple_id: string; amount: number; date: string };
+        Update: Partial<Database['public']['Tables']['transactions']['Row']>;
+      };
+      budget_categories: {
+        Row: {
+          id: string;
+          couple_id: string;
           name: string;
-          [key: string]: any;
-        };
-        Update: {
-          [key: string]: any;
-        };
-      };
-      error_logs: {
-        Row: {
-          id: string;
-          organization_id: string;
-          error_type: string;
-          severity: "info" | "warning" | "error" | "critical";
-          title: string;
-          message: string | null;
-          metadata: Record<string, any>;
-          provider: string | null;
-          resolved: boolean;
-          resolved_at: string | null;
-          resolved_by: string | null;
+          allocated_amount: number;
+          period: 'weekly' | 'monthly' | 'annual';
+          color: string | null;
+          icon: string | null;
           created_at: string;
         };
-        Insert: {
-          id?: string;
-          organization_id: string;
-          error_type: string;
-          severity?: "info" | "warning" | "error" | "critical";
-          title: string;
-          message?: string | null;
-          metadata?: Record<string, any>;
-          provider?: string | null;
-          resolved?: boolean;
-          resolved_at?: string | null;
-          resolved_by?: string | null;
-          created_at?: string;
-        };
-        Update: {
-          resolved?: boolean;
-          resolved_at?: string | null;
-          resolved_by?: string | null;
-        };
+        Insert: Partial<Database['public']['Tables']['budget_categories']['Row']> & { couple_id: string; name: string };
+        Update: Partial<Database['public']['Tables']['budget_categories']['Row']>;
       };
-      platform_metrics: {
+      goals: {
         Row: {
           id: string;
-          metric_date: string;
-          total_organizations: number;
-          active_subscriptions: number;
-          mrr: number;
-          total_errors_unresolved: number;
-          syncs_today: number;
-          failures_today: number;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          metric_date: string;
-          total_organizations: number;
-          active_subscriptions: number;
-          mrr: number;
-          total_errors_unresolved: number;
-          syncs_today: number;
-          failures_today: number;
-          created_at?: string;
-        };
-        Update: {
-          [key: string]: any;
-        };
-      };
-      admin_audit_log: {
-        Row: {
-          id: string;
-          admin_id: string;
-          action: string;
-          target_type: string;
-          target_id: string | null;
-          organization_id: string | null;
-          details: Record<string, any>;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          admin_id: string;
-          action: string;
-          target_type: string;
-          target_id?: string | null;
-          organization_id?: string | null;
-          details?: Record<string, any>;
-          created_at?: string;
-        };
-        Update: {
-          [key: string]: any;
-        };
-      };
-      locations: {
-        Row: {
-          id: string;
-          organization_id: string;
-          parent_id: string | null;
+          couple_id: string;
           name: string;
-          address: string | null;
-          city: string | null;
-          state: string | null;
-          zip: string | null;
-          is_default: boolean;
+          target_amount: number;
+          current_amount: number;
+          target_date: string | null;
+          icon: string | null;
+          color: string | null;
+          is_completed: boolean;
+          created_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['goals']['Row']> & { couple_id: string; name: string; target_amount: number };
+        Update: Partial<Database['public']['Tables']['goals']['Row']>;
+      };
+      bills: {
+        Row: {
+          id: string;
+          couple_id: string;
+          name: string;
+          amount: number;
+          due_day: number | null;
+          split_type: 'equal' | 'proportional' | 'fixed';
+          partner1_amount: number | null;
+          partner2_amount: number | null;
+          category: string | null;
           is_active: boolean;
           created_at: string;
-          updated_at: string;
         };
-        Insert: {
-          id?: string;
-          organization_id: string;
-          parent_id?: string | null;
-          name: string;
-          address?: string | null;
-          city?: string | null;
-          state?: string | null;
-          zip?: string | null;
-          is_default?: boolean;
-          is_active?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          organization_id?: string;
-          parent_id?: string | null;
-          name?: string;
-          address?: string | null;
-          city?: string | null;
-          state?: string | null;
-          zip?: string | null;
-          is_default?: boolean;
-          is_active?: boolean;
-          updated_at?: string;
-        };
+        Insert: Partial<Database['public']['Tables']['bills']['Row']> & { couple_id: string; name: string; amount: number };
+        Update: Partial<Database['public']['Tables']['bills']['Row']>;
       };
-      location_members: {
+      subscriptions: {
         Row: {
           id: string;
-          location_id: string;
-          profile_id: string;
-          role: 'owner' | 'admin' | 'viewer';
+          couple_id: string | null;
+          stripe_customer_id: string | null;
+          stripe_subscription_id: string | null;
+          price_id: string | null;
+          status: string | null;
+          current_period_end: string | null;
+          trial_end: string | null;
           created_at: string;
+          updated_at: string;
         };
-        Insert: {
-          id?: string;
-          location_id: string;
-          profile_id: string;
-          role?: 'owner' | 'admin' | 'viewer';
-          created_at?: string;
-        };
-        Update: {
-          role?: 'owner' | 'admin' | 'viewer';
-        };
+        Insert: Partial<Database['public']['Tables']['subscriptions']['Row']>;
+        Update: Partial<Database['public']['Tables']['subscriptions']['Row']>;
       };
     };
     Views: Record<string, never>;

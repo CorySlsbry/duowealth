@@ -13,9 +13,15 @@ import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-12-18.acacia' as any,
-});
+let _stripe: Stripe | null = null;
+function getStripe(): Stripe {
+  if (!_stripe) {
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_placeholder', {
+      apiVersion: '2024-12-18.acacia' as any,
+    });
+  }
+  return _stripe;
+}
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://duowealth.vercel.app';
 
@@ -79,7 +85,7 @@ export async function POST(request: NextRequest) {
       sessionParams.customer_email = customerEmail;
     }
 
-    const session = await stripe.checkout.sessions.create(sessionParams);
+    const session = await getStripe().checkout.sessions.create(sessionParams);
 
     if (!session.url) {
       return NextResponse.json({ error: 'No checkout URL returned' }, { status: 500 });

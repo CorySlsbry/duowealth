@@ -11,9 +11,15 @@ import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-12-18.acacia' as any,
-});
+let _stripe: Stripe | null = null;
+function getStripe(): Stripe {
+  if (!_stripe) {
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_placeholder', {
+      apiVersion: '2024-12-18.acacia' as any,
+    });
+  }
+  return _stripe;
+}
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://duowealth.vercel.app';
 
@@ -36,7 +42,7 @@ export async function POST(_request: NextRequest) {
       return NextResponse.json({ error: 'No active subscription found' }, { status: 400 });
     }
 
-    const session = await stripe.billingPortal.sessions.create({
+    const session = await getStripe().billingPortal.sessions.create({
       customer: sub.stripe_customer_id,
       return_url: `${APP_URL}/dashboard`,
     });
