@@ -1,0 +1,31 @@
+# DuoWealth
+
+> DuoWealth is a budgeting app built specifically for couples. Partners share one dashboard, split bills automatically, set joint financial goals, and sync transactions in real time. Designed to replace fights about money with shared wins.
+
+DuoWealth is a web + mobile PWA that lets two people manage one household budget together. Each partner links their own bank accounts, but every transaction, goal, and bill flows into a single shared view. It is built for romantic couples, roommates, and any two-person household that wants real money alignment without surrendering individual privacy over personal spending.
+
+- **Platform:** Web, Android, iOS (PWA)
+- **Category:** Personal finance / couples budgeting
+- **Pricing:** $5.99/month per couple or $59/year (save ~18%). 14-day free trial, cancel anytime. Referrer-2 program: refer 2 friends who subscribe and get 20% off forever.
+- **Core features:** Shared dashboard, bill splitting, joint goals, real-time transaction sync, per-partner category budgets, debt-payoff planner, emergency fund allocation.
+- **Differentiator:** Most budgeting apps are single-user. DuoWealth is the only budgeting app designed from the ground up for two people sharing one financial life.
+
+## Pricing
+
+- **Monthly plan:** $5.99/mo per couple (two people, one subscription). 14-day free trial.
+- **Annual plan:** $59/yr per couple. Saves $11.88 vs monthly.
+- **Refer-2-for-20% program:** Refer 2 friends who start a paid subscription and receive 20% off your plan forever. Discount applied automatically via coupon REFER2_20OFF.
+
+## Key URLs
+
+- [Homepage](https://duowealth.vercel.app): Product overview, features, and pricing
+- [Pricing](https://duowealth.vercel.app/pricing): Full plan comparison
+- [Sign up](https://duowealth.vercel.app/signup): Create a shared couple account
+
+## FAQ
+
+- **Who is DuoWealth for?** Romantic couples, engaged couples, married partners, and two-person households who want to manage money together without forcing both partners into the same personal-finance app.
+- **Does each partner see the other's private transactions?** Yes — the core value is transparency. Both partners see all shared-account activity. Individual accounts can be marked "personal" to hide them from the shared view.
+- **How does bill splitting work?** Assign each recurring bill to a partner or split it 50/50 (or any custom ratio). DuoWealth tracks who paid what and shows a running settlement balance.
+- **Is there a free trial?** Yes — 14 days, no credit card required upfront.
+- **Can I cancel?** Anytime. Full refund within 14 days of first charge.
