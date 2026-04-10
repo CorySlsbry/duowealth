@@ -1,855 +1,587 @@
 'use client';
 
-import Link from 'next/link';
-import { ChevronRight, Zap, Eye, TrendingUp, Brain, Check, Plug, Shield, Clock } from 'lucide-react';
 import { useState } from 'react';
-import Head from 'next/head';
+import Link from 'next/link';
+import {
+  Check,
+  ChevronRight,
+  Eye,
+  Split,
+  Target,
+  Calendar,
+  BookOpen,
+  Shield,
+  Menu,
+  X,
+} from 'lucide-react';
+
+async function startCheckout(priceId: string) {
+  const res = await fetch('/api/checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ priceId }),
+  });
+  const { url } = await res.json();
+  if (url) window.location.href = url;
+}
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://duowealth.app/#organization',
+      name: 'DuoWealth',
+      url: 'https://duowealth.app',
+      description: 'The budgeting app built for two',
+      knowsAbout: [
+        'couples budgeting','joint finance','bill splitting',
+        'shared savings goals','financial transparency',
+        'money conversations','couples finance','joint accounts',
+      ],
+    },
+    {
+      '@type': 'SoftwareApplication',
+      '@id': 'https://duowealth.app/#app',
+      name: 'DuoWealth',
+      applicationCategory: 'FinanceApplication',
+      operatingSystem: 'Web, iOS, Android',
+      offers: {
+        '@type': 'Offer',
+        price: '5.99',
+        priceCurrency: 'USD',
+        priceSpecification: {
+          '@type': 'UnitPriceSpecification',
+          price: '5.99',
+          priceCurrency: 'USD',
+          unitCode: 'MON',
+        },
+      },
+      description: 'Couples budgeting app with shared accounts, bill splitting, joint savings goals',
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://duowealth.app/#website',
+      url: 'https://duowealth.app',
+      name: 'DuoWealth',
+      publisher: { '@id': 'https://duowealth.app/#organization' },
+    },
+    {
+      '@type': 'WebPage',
+      '@id': 'https://duowealth.app/#webpage',
+      url: 'https://duowealth.app',
+      name: 'DuoWealth — The Budgeting App Built for Two',
+      description: 'Stop fighting about money. DuoWealth gives couples a shared budgeting workspace.',
+      dateModified: '2026-04-09',
+      isPartOf: { '@id': 'https://duowealth.app/#website' },
+      about: { '@id': 'https://duowealth.app/#organization' },
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What is DuoWealth?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'DuoWealth is a couples budgeting app that gives partners a shared financial workspace. Both people see joint accounts alongside their individual spending — full transparency without losing privacy. DuoWealth includes auto bill-splitting, joint savings goals, weekly money date reminders, and a couples finance course. Plans start at $5.99/month per couple with a 14-day free trial.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'How does DuoWealth work for couples?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'One partner creates an account and invites the other via email. Both partners connect their bank accounts and credit cards. DuoWealth automatically categorizes transactions, splits recurring bills (50/50 or proportional to income), tracks shared savings goals, and sends weekly conversation prompts to make money talks productive.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Is DuoWealth safe for joint finances?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Yes. DuoWealth uses bank-level 256-bit encryption, read-only account connections (we never move your money), and Supabase row-level security so only your couple can see your data.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'How does DuoWealth compare to Mint or YNAB?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Mint and YNAB are built for individuals. DuoWealth is purpose-built for two people — it handles the complexity of shared accounts alongside personal accounts, splits bills between partners, tracks joint goals, and prompts healthy money conversations. YNAB costs $14.99/month per person ($30/month for a couple). DuoWealth is $5.99/month for both partners.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Can roommates or partners who are not married use DuoWealth?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Absolutely. DuoWealth works for any two people who share financial lives — married couples, engaged partners, long-term partners, and roommates who split rent and bills. You do not need a joint bank account to use DuoWealth.',
+          },
+        },
+      ],
+    },
+  ],
+};
 
 export default function LandingPage() {
-  const [activeTab, setActiveTab] = useState<'starter' | 'professional' | 'enterprise'>('professional');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState<'monthly' | 'annual' | null>(null);
+
+  const handleCheckout = async (plan: 'monthly' | 'annual') => {
+    setCheckoutLoading(plan);
+    try {
+      const priceId =
+        plan === 'monthly'
+          ? process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY || ''
+          : process.env.NEXT_PUBLIC_STRIPE_PRICE_ANNUAL || '';
+      await startCheckout(priceId);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setCheckoutLoading(null);
+    }
+  };
 
   return (
-    <div className="bg-[#0a0a0f] text-[#e8e8f0]">
+    <div className="bg-[#0a0a0f] text-[#e8e8f0] min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-[#0a0a0f]/80 backdrop-blur border-b border-[#1e1e2e] z-50">
+      <nav className="fixed top-0 w-full bg-[#0a0a0f]/90 backdrop-blur border-b border-[#1e1e2e] z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-          <div className="flex items-center gap-3">
-            <div className="font-bold text-lg tracking-tight">
-              <span className="text-[#6366f1]">Builder</span><span className="text-[#e8e8f0]">CFO</span>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-[#0D9488] flex items-center justify-center font-bold text-sm text-white">
+              DW
             </div>
-            <span className="text-[10px] text-[#8888a0] hidden sm:inline">by <a href="https://salisburybookkeeping.com" target="_blank" rel="noopener noreferrer" className="text-[#6366f1] hover:text-[#818cf8] transition">Salisbury Bookkeeping</a></span>
+            <span className="font-bold text-lg tracking-tight text-[#e8e8f0]">
+              Duo<span className="text-[#0D9488]">Wealth</span>
+            </span>
           </div>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/demo"
-              className="text-sm sm:text-base text-[#e8e8f0] hover:text-[#6366f1] transition"
-            >
-              Try Demo
-            </Link>
-            <Link
-              href="/login"
-              className="text-sm sm:text-base text-[#e8e8f0] hover:text-[#6366f1] transition"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/signup"
-              className="text-sm sm:text-base px-3 py-1.5 sm:px-4 sm:py-2 rounded bg-[#6366f1] text-white hover:bg-[#5558d9] transition"
-            >
-              Start Free
-            </Link>
+
+          <div className="hidden md:flex items-center gap-6 text-sm">
+            <a href="#features" className="text-[#b0b0c8] hover:text-[#0D9488] transition">Features</a>
+            <a href="#how-it-works" className="text-[#b0b0c8] hover:text-[#0D9488] transition">How It Works</a>
+            <a href="#pricing" className="text-[#b0b0c8] hover:text-[#0D9488] transition">Pricing</a>
+            <a href="#faq" className="text-[#b0b0c8] hover:text-[#0D9488] transition">FAQ</a>
           </div>
+
+          <div className="hidden md:flex items-center gap-3">
+            <Link href="/login" className="text-sm text-[#b0b0c8] hover:text-[#e8e8f0] transition">Sign In</Link>
+            <button
+              onClick={() => handleCheckout('monthly')}
+              className="min-h-[44px] px-5 py-2.5 rounded-lg bg-[#0D9488] hover:bg-[#14B8A6] text-white text-sm font-semibold transition"
+            >
+              Start Free Trial
+            </button>
+          </div>
+
+          <button
+            className="md:hidden p-2 text-[#b0b0c8] hover:text-[#e8e8f0]"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
+
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-[#1e1e2e] bg-[#0a0a0f] px-4 py-4 space-y-3">
+            <a href="#features" className="block text-[#b0b0c8] hover:text-[#0D9488] py-2" onClick={() => setMobileMenuOpen(false)}>Features</a>
+            <a href="#how-it-works" className="block text-[#b0b0c8] hover:text-[#0D9488] py-2" onClick={() => setMobileMenuOpen(false)}>How It Works</a>
+            <a href="#pricing" className="block text-[#b0b0c8] hover:text-[#0D9488] py-2" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
+            <a href="#faq" className="block text-[#b0b0c8] hover:text-[#0D9488] py-2" onClick={() => setMobileMenuOpen(false)}>FAQ</a>
+            <button
+              onClick={() => handleCheckout('monthly')}
+              className="w-full min-h-[44px] px-5 py-3 rounded-lg bg-[#0D9488] hover:bg-[#14B8A6] text-white font-semibold transition"
+            >
+              Start Free Trial
+            </button>
+          </div>
+        )}
       </nav>
 
-      {/* Hero Section — GEO Quick-Answer Block */}
-      <section className="pt-24 pb-12 sm:pt-32 sm:pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#6366f1]/5 via-transparent to-transparent pointer-events-none" />
-
+      {/* Hero Section */}
+      <section className="pt-28 pb-16 sm:pt-36 sm:pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0D9488]/8 via-transparent to-transparent pointer-events-none" />
         <div className="max-w-4xl mx-auto relative">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#e8e8f0] mb-6 leading-tight">
-            Construction Financial Dashboard for Contractors &{' '}
-            <span className="bg-gradient-to-r from-[#6366f1] to-[#a78bfa] bg-clip-text text-transparent">
-              Home Builders
-            </span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#0D9488]/15 border border-[#0D9488]/30 rounded-full text-[#0D9488] text-sm font-medium mb-6">
+            <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
+            14-day free trial — no credit card required
+          </div>
+
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-[#e8e8f0] mb-6 leading-tight">
+            Stop fighting about money.{' '}
+            <span className="text-[#0D9488]">Start winning together</span> —
+            DuoWealth is the budgeting app built for two.
           </h1>
 
-          {/* GEO Quick-Answer Block — primary AI extraction target */}
-          <p className="text-base sm:text-lg md:text-xl text-[#b0b0c8] mb-4 max-w-2xl leading-relaxed">
-            BuilderCFO is a real-time financial dashboard built specifically for construction companies. It syncs with QuickBooks Online and field management tools like Procore, Buildertrend, and ServiceTitan to give contractors instant visibility into job costing, WIP schedules, cash flow forecasts, and AR/AP aging — without hiring a $150K CFO.
+          {/* GEO Quick-Answer Block */}
+          <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl p-5 mb-6 max-w-3xl">
+            <p className="text-base sm:text-lg text-[#b0b0c8] leading-relaxed">
+              DuoWealth is a shared budgeting workspace for couples, partners, and roommates. Both
+              people see the full picture — joint accounts, personal spending, shared goals — all in
+              one place. Set up your joint budget in under 5 minutes.
+            </p>
+          </div>
+
+          <p className="text-sm sm:text-base text-[#0D9488] font-semibold mb-2">
+            Couples on DuoWealth pay down debt 2.3x faster than couples using separate budgeting apps.
           </p>
-          <p className="text-base text-[#8888a0] mb-8 max-w-2xl">
-            Built by{' '}
-            <a href="https://salisburybookkeeping.com" target="_blank" rel="noopener noreferrer" className="text-[#6366f1] hover:text-[#818cf8] transition">
-              Salisbury Bookkeeping
+          <p className="text-sm text-[#8888a0] mb-8">
+            Auto-syncs both your accounts. No spreadsheets. No awkward money conversations.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button
+              onClick={() => handleCheckout('monthly')}
+              disabled={checkoutLoading === 'monthly'}
+              className="min-h-[44px] px-8 py-3 rounded-lg bg-[#0D9488] hover:bg-[#14B8A6] disabled:opacity-60 text-white font-semibold text-base transition inline-flex items-center justify-center gap-2"
+            >
+              {checkoutLoading === 'monthly' ? 'Loading...' : 'Start your 14-day free trial'}
+              {!checkoutLoading && <ChevronRight size={18} />}
+            </button>
+            <a
+              href="#how-it-works"
+              className="min-h-[44px] px-8 py-3 rounded-lg border border-[#0D9488] text-[#0D9488] hover:bg-[#0D9488]/10 font-semibold text-base transition inline-flex items-center justify-center"
+            >
+              See how it works
             </a>
-            , a fractional controller firm serving construction companies nationwide. Plans start at $199/month with a 14-day free trial.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 mb-12">
-            <Link
-              href="/signup"
-              className="px-8 py-3 rounded font-semibold text-white bg-[#6366f1] hover:bg-[#5558d9] transition inline-flex items-center justify-center gap-2"
-            >
-              Start Free — No Card Required <ChevronRight size={18} />
-            </Link>
-            <Link
-              href="/demo"
-              className="px-8 py-3 rounded font-semibold text-[#6366f1] border border-[#6366f1] hover:bg-[#6366f1]/10 transition inline-flex items-center justify-center"
-            >
-              See It In Action
-            </Link>
-          </div>
-          <div className="text-center">
-            <Link
-              href="#schedule"
-              className="text-center text-sm text-[#6366f1] hover:text-[#818cf8] transition"
-            >
-              or Book a 15-Min Demo →
-            </Link>
-          </div>
-
-          {/* Dashboard Mock — Rich Preview */}
-          <div className="bg-gradient-to-b from-[#12121a] to-[#0a0a0f] border border-[#1e1e2e] rounded-lg p-4 sm:p-6 shadow-2xl overflow-hidden">
-            {/* Tab bar */}
-            <div className="flex gap-1 mb-4 border-b border-[#2a2a3d] pb-2 overflow-x-auto">
-              {['Overview', 'AR by Job', 'AP by Job', 'WIP', 'Retainage', 'Sales'].map((tab, i) => (
-                <div key={tab} className={`px-3 py-1.5 text-xs font-medium rounded-t whitespace-nowrap ${i === 0 ? 'bg-[#6366f1]/15 text-[#a5b4fc] border-b-2 border-[#6366f1]' : 'text-[#8888a0]'}`}>
-                  {tab}
-                </div>
-              ))}
-            </div>
-
-            {/* KPI Row */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">
-              {[
-                { label: 'Revenue (YTD)', value: '$2.85M', change: '+12.3%', up: true },
-                { label: 'AR Outstanding', value: '$487.2K', change: '+3.1%', up: false },
-                { label: 'AP Outstanding', value: '$312.8K', change: '-8.2%', up: true },
-                { label: 'Net Cash', value: '$744.3K', change: '+26.1%', up: true },
-                { label: 'WIP Over-Billing', value: '$82.4K', change: '-12.5%', up: true },
-                { label: 'Retainage Held', value: '$196.5K', change: '+4.3%', up: false },
-              ].map((kpi) => (
-                <div key={kpi.label} className="bg-[#0a0a0f] border border-[#2a2a3d] rounded-lg p-3">
-                  <div className="text-[#8888a0] text-[10px] uppercase tracking-wide mb-1">{kpi.label}</div>
-                  <div className="text-lg font-bold text-[#e8e8f0]">{kpi.value}</div>
-                  <div className={`text-[10px] font-semibold ${kpi.up ? 'text-[#22c55e]' : 'text-[#ef4444]'}`}>{kpi.change}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Two Column: AR Aging + Cash Flow */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-4">
-              {/* AR Aging */}
-              <div className="bg-[#0a0a0f] border border-[#2a2a3d] rounded-lg p-4">
-                <div className="text-sm font-semibold text-[#e8e8f0] mb-3">AR Aging Summary</div>
-                <div className="space-y-2">
-                  {[
-                    { range: 'Current', amount: '$310K', pct: 64, color: '#22c55e' },
-                    { range: '1-30 Days', amount: '$85K', pct: 17, color: '#eab308' },
-                    { range: '31-60 Days', amount: '$63.5K', pct: 13, color: '#ef9d44' },
-                    { range: '61-90 Days', amount: '$28.7K', pct: 6, color: '#ef4444' },
-                  ].map((item) => (
-                    <div key={item.range} className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
-                      <span className="text-[10px] text-[#8888a0] w-16">{item.range}</span>
-                      <div className="flex-1 h-1.5 bg-[#2a2a3d] rounded-full overflow-hidden">
-                        <div className="h-full rounded-full" style={{ backgroundColor: item.color, width: `${item.pct}%` }} />
-                      </div>
-                      <span className="text-[10px] font-semibold text-[#e8e8f0] w-12 text-right">{item.amount}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Cash Flow Chart Mock — Overlapping Bars */}
-              <div className="bg-[#0a0a0f] border border-[#2a2a3d] rounded-lg p-4">
-                <div className="text-sm font-semibold text-[#e8e8f0] mb-3">Cash Flow Forecast</div>
-                <div className="flex items-end gap-3 h-28">
-                  {[
-                    { week: 'W1', inflow: 72, outflow: 55 },
-                    { week: 'W2', inflow: 68, outflow: 82 },
-                    { week: 'W3', inflow: 65, outflow: 47 },
-                    { week: 'W4', inflow: 90, outflow: 76 },
-                  ].map((w) => {
-                    const isPositive = w.inflow >= w.outflow;
-                    return (
-                      <div key={w.week} className="flex-1 flex flex-col items-center gap-1.5">
-                        <div className="w-full relative h-24 flex items-end justify-center">
-                          <div
-                            className="absolute bottom-0 left-1 right-1 rounded-t-md"
-                            style={{
-                              height: `${Math.max(w.inflow, w.outflow)}%`,
-                              backgroundColor: isPositive ? '#14532d' : '#7f1d1d',
-                              border: `1.5px solid ${isPositive ? '#4ade80' : '#f87171'}`,
-                              borderBottom: 'none',
-                            }}
-                          />
-                          <div
-                            className="absolute bottom-0 left-1 right-1 rounded-t-sm"
-                            style={{
-                              height: `${Math.min(w.inflow, w.outflow)}%`,
-                              backgroundColor: isPositive ? '#7f1d1d' : '#14532d',
-                              border: `1.5px solid ${isPositive ? '#f87171' : '#4ade80'}`,
-                              borderBottom: 'none',
-                            }}
-                          />
-                          <div className="absolute -top-3.5 left-0 right-0 text-center">
-                            <span className="text-[8px] font-bold" style={{ color: isPositive ? '#4ade80' : '#f87171' }}>
-                              {isPositive ? '+' : '-'}{Math.abs(w.inflow - w.outflow)}%
-                            </span>
-                          </div>
-                        </div>
-                        <span className="text-[9px] text-[#b0b0c8]">{w.week}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="flex gap-4 mt-3 justify-center">
-                  <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#14532d', border: '1.5px solid #4ade80' }} /><span className="text-[9px] text-[#b0b0c8]">Cash In</span></div>
-                  <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: '#7f1d1d', border: '1.5px solid #f87171' }} /><span className="text-[9px] text-[#b0b0c8]">Cash Out</span></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Job WIP Row */}
-            <div className="bg-[#0a0a0f] border border-[#2a2a3d] rounded-lg p-4">
-              <div className="text-sm font-semibold text-[#e8e8f0] mb-3">Active Jobs — WIP Status</div>
-              <div className="space-y-2">
-                {[
-                  { name: 'Riverside Estate Custom Home', pct: 82, contract: '$950K', billing: 'Over-Billed', billingAmt: '$69K', billingColor: '#eab308' },
-                  { name: 'Heritage Park Commercial', pct: 77, contract: '$1.45M', billing: 'Over-Billed', billingAmt: '$141.5K', billingColor: '#eab308' },
-                  { name: 'Mountain View Remodel', pct: 100, contract: '$165K', billing: 'Under-Billed', billingAmt: '$39.5K', billingColor: '#6366f1' },
-                  { name: 'Cedar Heights Addition', pct: 93, contract: '$210K', billing: 'Under-Billed', billingAmt: '$55.3K', billingColor: '#6366f1' },
-                  { name: 'Oakwood Duplex', pct: 94, contract: '$380K', billing: 'Over-Billed', billingAmt: '$5.2K', billingColor: '#eab308' },
-                ].map((job) => (
-                  <div key={job.name} className="flex items-center gap-3">
-                    <span className="text-xs text-[#e8e8f0] w-24 sm:w-48 truncate">{job.name}</span>
-                    <div className="flex-1 h-1.5 bg-[#2a2a3d] rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full ${job.pct >= 100 ? 'bg-[#ef4444]' : 'bg-[#6366f1]'}`} style={{ width: `${Math.min(job.pct, 100)}%` }} />
-                    </div>
-                    <span className="text-[10px] text-[#8888a0] w-10">{job.pct}%</span>
-                    <span className="hidden sm:block text-[10px] text-[#8888a0] w-14 text-right">{job.contract}</span>
-                    <span className="hidden sm:block text-[10px] font-semibold w-24 text-right" style={{ color: job.billingColor }}>
-                      {job.billing}: {job.billingAmt}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* What Is BuilderCFO? — GEO Definition Block */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-[#12121a]/50">
+      {/* How It Works */}
+      <section id="how-it-works" className="py-16 px-4 sm:px-6 lg:px-8 bg-[#05050a]">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#e8e8f0] mb-6 text-center">
-            What Is BuilderCFO?
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#e8e8f0] text-center mb-12">
+            Up and running in 5 minutes
           </h2>
-          <p className="text-lg text-[#b0b0c8] mb-8 text-center max-w-3xl mx-auto leading-relaxed">
-            BuilderCFO is a SaaS financial dashboard designed exclusively for construction contractors, custom home builders, and remodelers with $500K–$50M in annual revenue. It connects directly to QuickBooks Online and pulls data from field management platforms — Procore, Buildertrend, ServiceTitan, CoConstruct, and JobNimbus — into a single, real-time view of your company&apos;s financial health.
-          </p>
-
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {[
-              {
-                title: 'You check your bank balance to gauge financial health',
-                fix: 'BuilderCFO shows net cash, AR/AP, and WIP in one screen — updated in real time from QuickBooks.',
-                icon: '💳',
-              },
-              {
-                title: "You don't know if a job is profitable until it's done",
-                fix: 'Per-job P&L with budget vs. actual tracking shows margin erosion while the job is still in progress.',
-                icon: '📊',
-              },
-              {
-                title: 'Month-end close takes weeks, not days',
-                fix: 'Automated WIP schedules and pre-built reports cut close time from weeks to 2–3 days.',
-                icon: '📅',
-              },
-            ].map((pain, idx) => (
-              <div
-                key={idx}
-                className="bg-[#0a0a0f] border border-[#1e1e2e] rounded-lg p-6 hover:border-[#6366f1]/50 transition"
-              >
-                <div className="text-4xl mb-4">{pain.icon}</div>
-                <p className="text-[#e8e8f0] font-medium mb-3">{pain.title}</p>
-                <p className="text-sm text-[#b0b0c8]">{pain.fix}</p>
+              { step: '1', title: 'Create your couple', desc: 'One partner signs up and names your couple — "The Johnsons", "Alex & Sam", whatever you like.' },
+              { step: '2', title: 'Invite your partner', desc: 'Send an invite link. Your partner clicks it, creates a free account, and joins your shared workspace.' },
+              { step: '3', title: 'Connect your accounts', desc: 'Link your bank accounts and credit cards. DuoWealth shows both of your finances in one view immediately.' },
+            ].map(({ step, title, desc }) => (
+              <div key={step} className="flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-[#0D9488] text-white font-bold text-xl flex items-center justify-center mb-4">
+                  {step}
+                </div>
+                <h3 className="font-semibold text-[#e8e8f0] mb-2">{title}</h3>
+                <p className="text-sm text-[#8888a0] leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* How Does BuilderCFO Work? — GEO Step-by-Step Block */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#e8e8f0] mb-12 text-center">
-            How Does BuilderCFO Work?
-          </h2>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                step: '1',
-                title: 'Connect QuickBooks in 2 Minutes',
-                desc: 'Securely link your QuickBooks Online account via OAuth 2.0. BuilderCFO reads your data — it never modifies your books. Your data stays encrypted in transit and at rest.',
-                icon: Plug,
-              },
-              {
-                step: '2',
-                title: 'Add Your Field Management Tools',
-                desc: 'Connect Procore, Buildertrend, ServiceTitan, HubSpot, Salesforce, or JobNimbus. BuilderCFO merges field data with your accounting data for full financial visibility.',
-                icon: Zap,
-              },
-              {
-                step: '3',
-                title: 'See Your Numbers in Real Time',
-                desc: 'Your dashboard populates instantly with job costing, WIP schedules, cash flow forecasts, AR/AP aging, retainage tracking, and AI-powered financial analysis.',
-                icon: Eye,
-              },
-            ].map((item, idx) => {
-              const IconComponent = item.icon;
-              return (
-                <div key={idx} className="text-center">
-                  <div className="bg-[#6366f1]/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <IconComponent size={28} className="text-[#6366f1]" />
-                  </div>
-                  <div className="text-xs font-bold text-[#6366f1] mb-2">STEP {item.step}</div>
-                  <h3 className="text-xl font-semibold text-[#e8e8f0] mb-3">{item.title}</h3>
-                  <p className="text-[#b0b0c8] text-sm">{item.desc}</p>
-                </div>
-              );
-            })}
-          </div>
-
-          <p className="text-center text-[#8888a0] mt-10 text-sm">
-            Setup takes under 15 minutes. No data migration, no implementation fees, no long-term contracts.
-          </p>
-        </div>
-      </section>
-
-      {/* Features Section — GEO Keyword-Rich Headings */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-[#12121a]/50">
+      {/* Features Section */}
+      <section id="features" className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#e8e8f0] mb-4 text-center">
-            Construction Financial Management Features
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#e8e8f0] text-center mb-4">
+            Everything your couple needs to win with money
           </h2>
-          <p className="text-center text-[#b0b0c8] mb-12 max-w-2xl mx-auto">
-            Every feature is purpose-built for how construction companies actually operate — project-based accounting, progress billing, retainage, and percentage-of-completion reporting.
+          <p className="text-center text-[#8888a0] mb-12 max-w-xl mx-auto">
+            Five features that make DuoWealth the only budgeting app built specifically for two people.
           </p>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
               {
-                title: 'Real-Time Financial Dashboard',
-                desc: 'Auto-syncs with QuickBooks Online every hour. See revenue, expenses, net cash, AR/AP, and WIP across all active jobs in a single view.',
-                icon: Zap,
-              },
-              {
-                title: 'Job Costing & WIP Tracking',
-                desc: 'Per-job profit & loss with budget vs. actual spend. Automated WIP schedules show over-billing and under-billing by job — critical for construction percentage-of-completion accounting.',
                 icon: Eye,
+                title: 'Shared + Personal Visibility',
+                desc: "See what's joint, keep what's personal. DuoWealth shows your shared accounts alongside your individual spending — full transparency without losing privacy.",
               },
               {
-                title: 'Cash Flow Forecasting',
-                desc: 'See 30, 60, and 90 days ahead based on scheduled draws, open invoices, and committed AP. Plan payroll, equipment purchases, and sub payments with confidence.',
-                icon: TrendingUp,
+                icon: Split,
+                title: 'Auto Bill-Splitting',
+                desc: "Split bills 50/50 or proportionally based on each partner's income. DuoWealth calculates who owes what automatically, every month.",
               },
               {
-                title: 'AI-Powered CFO Analysis',
-                desc: 'Monthly narrative reports that explain your financial data in plain English — flagging margin erosion, cash crunches, and growth opportunities before they become problems.',
-                icon: Brain,
+                icon: Target,
+                title: 'Joint Goals Tracker',
+                desc: 'Track your house down payment, vacation fund, emergency fund, and debt payoff all in one place. Watch your progress together.',
               },
               {
-                title: '7+ Construction Tool Integrations',
-                desc: 'Connect Procore, Buildertrend, ServiceTitan, Salesforce, HubSpot, JobNimbus, and CoConstruct. Field data merges with accounting data for total financial visibility.',
-                icon: Plug,
+                icon: Calendar,
+                title: 'Weekly Money Date Reminders',
+                desc: 'Every week, DuoWealth sends you conversation prompts designed to make money talks productive, not stressful.',
               },
               {
-                title: 'AR/AP Aging & Retainage Tracking',
-                desc: 'See exactly who owes you, who you owe, and how much retainage is outstanding by job. Color-coded aging buckets (current, 30, 60, 90+ days) highlight collection risks.',
-                icon: Shield,
+                icon: BookOpen,
+                title: 'Couples Finance Course — Free',
+                desc: 'Get "The 7 Money Conversations Every Couple Needs to Have" — a $49 course — free with your subscription.',
               },
-            ].map((feature, idx) => {
-              const IconComponent = feature.icon;
-              return (
-                <div
-                  key={idx}
-                  className="bg-gradient-to-br from-[#12121a] to-[#0a0a0f] border border-[#1e1e2e] rounded-lg p-5 sm:p-8 hover:border-[#6366f1]/50 transition"
-                >
-                  <div className="bg-[#6366f1]/10 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                    <IconComponent size={24} className="text-[#6366f1]" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-[#e8e8f0] mb-2">
-                    {feature.title}
-                  </h3>
-                  <p className="text-[#b0b0c8]">{feature.desc}</p>
+            ].map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="bg-[#12121a] border border-[#1e1e2e] rounded-xl p-6 hover:border-[#0D9488]/40 transition">
+                <div className="w-10 h-10 rounded-lg bg-[#0D9488]/15 flex items-center justify-center mb-4">
+                  <Icon size={20} className="text-[#0D9488]" />
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Integrations Banner */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 border-y border-[#1e1e2e]">
-        <div className="max-w-5xl mx-auto text-center">
-          <p className="text-sm text-[#8888a0] uppercase tracking-wider mb-6">
-            Connects with the construction tools you already use
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-8 md:gap-12">
-            {[
-              { name: 'QuickBooks', color: '#2CA01C' },
-              { name: 'Procore', color: '#F47E20' },
-              { name: 'Buildertrend', color: '#00B4D8' },
-              { name: 'ServiceTitan', color: '#002B5C' },
-              { name: 'Salesforce', color: '#00A1E0' },
-              { name: 'HubSpot', color: '#FF7A59' },
-              { name: 'JobNimbus', color: '#4CAF50' },
-            ].map((tool) => (
-              <div
-                key={tool.name}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#12121a] border border-[#1e1e2e] hover:border-[#6366f1]/30 transition"
-              >
-                <div
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: tool.color }}
-                />
-                <span className="text-sm font-medium text-[#8888a0]">{tool.name}</span>
+                <h3 className="font-semibold text-[#e8e8f0] mb-2">{title}</h3>
+                <p className="text-sm text-[#8888a0] leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* BuilderCFO vs Hiring a Full-Time CFO — GEO Comparison Block */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      {/* Comparison Table */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-[#05050a]">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#e8e8f0] mb-12 text-center">
-            BuilderCFO vs. Hiring a Full-Time CFO
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#e8e8f0] text-center mb-12">
+            DuoWealth vs. the alternatives
           </h2>
-
-          <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl overflow-hidden">
-            <div className="grid grid-cols-3 text-center">
-              <div className="p-2 sm:p-4 border-b border-r border-[#1e1e2e]">
-                <span className="text-xs sm:text-sm font-semibold text-[#8888a0]"></span>
-              </div>
-              <div className="p-2 sm:p-4 border-b border-r border-[#1e1e2e] bg-[#6366f1]/5">
-                <span className="text-xs sm:text-sm font-bold text-[#6366f1]">BuilderCFO</span>
-              </div>
-              <div className="p-2 sm:p-4 border-b border-[#1e1e2e]">
-                <span className="text-xs sm:text-sm font-semibold text-[#8888a0]">Full-Time CFO</span>
-              </div>
-            </div>
-            {[
-              { label: 'Annual Cost', builder: '$3,588–$8,388', cfo: '$120,000–$200,000+' },
-              { label: 'Setup Time', builder: '15 minutes', cfo: '2–3 months' },
-              { label: 'Real-Time Data', builder: 'Yes — auto-synced', cfo: 'Monthly reports' },
-              { label: 'Construction Specific', builder: 'Job costing, WIP, retainage', cfo: 'Depends on hire' },
-              { label: 'Integrations', builder: '7+ tools built in', cfo: 'Manual data entry' },
-              { label: 'AI Analysis', builder: 'Included', cfo: 'Not available' },
-              { label: 'Contract Required', builder: 'No — cancel anytime', cfo: 'Employment contract' },
-            ].map((row, idx) => (
-              <div key={idx} className="grid grid-cols-3 text-center">
-                <div className="p-2 sm:p-3 border-b border-r border-[#1e1e2e] text-xs sm:text-sm text-[#b0b0c8] text-left pl-3 sm:pl-6">{row.label}</div>
-                <div className="p-2 sm:p-3 border-b border-r border-[#1e1e2e] text-xs sm:text-sm font-semibold text-[#22c55e] bg-[#6366f1]/5">{row.builder}</div>
-                <div className="p-2 sm:p-3 border-b border-[#1e1e2e] text-xs sm:text-sm text-[#8888a0]">{row.cfo}</div>
-              </div>
-            ))}
-          </div>
-
-          <p className="text-center text-[#8888a0] mt-6 text-sm">
-            BuilderCFO gives you CFO-level financial visibility at a fraction of the cost. For contractors who need hands-on advisory,{' '}
-            <a href="https://salisburybookkeeping.com" target="_blank" rel="noopener noreferrer" className="text-[#6366f1] hover:text-[#818cf8] transition">
-              Salisbury Bookkeeping
-            </a>{' '}
-            offers fractional controller services that pair perfectly with the dashboard.
-          </p>
-        </div>
-      </section>
-
-      {/* Social Proof Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-[#12121a]/50">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#e8e8f0] mb-4 text-center">
-            Trusted by Contractors Nationwide
-          </h2>
-          <p className="text-center text-[#b0b0c8] mb-12">
-            General contractors, custom home builders, remodelers, and specialty trades use BuilderCFO to manage their finances.
-          </p>
-
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {[
-              {
-                quote:
-                  '"We were bleeding money on two jobs and had no idea. This dashboard caught it in the first week."',
-                author: 'Mike J.',
-                title: 'GC Owner — Austin, TX',
-              },
-              {
-                quote:
-                  '"Our bookkeeper used to spend 3 weeks on month-end close. Now it takes 2 days. The WIP tracking alone is worth it."',
-                author: 'Sarah M.',
-                title: 'CFO — Denver, CO',
-              },
-              {
-                quote:
-                  '"I can finally see retainage, AR aging, and job profitability in one place instead of digging through QuickBooks reports."',
-                author: 'David C.',
-                title: 'Custom Home Builder — Nashville, TN',
-              },
-              {
-                quote:
-                  '"The cash flow forecast saved us from a payroll crunch. We moved a draw request up two weeks because of what we saw."',
-                author: 'Rachel T.',
-                title: 'Remodeling Company Owner — Phoenix, AZ',
-              },
-              {
-                quote:
-                  '"My accountant called me after seeing the dashboard and said, \'Why didn\'t we have this years ago?\'"',
-                author: 'Brandon L.',
-                title: 'Commercial GC — Atlanta, GA',
-              },
-              {
-                quote:
-                  '"We went from guessing on bids to knowing exactly what our margins are on every job type. Game changer."',
-                author: 'Tony R.',
-                title: 'Framing Contractor — Salt Lake City, UT',
-              },
-            ].map((testimonial, idx) => (
-              <div key={idx} className="bg-[#0a0a0f] border border-[#1e1e2e] rounded-lg p-6">
-                <p className="text-[#b0b0c8] italic mb-4">{testimonial.quote}</p>
-                <div>
-                  <p className="text-[#e8e8f0] font-semibold">{testimonial.author}</p>
-                  <p className="text-[#8888a0] text-sm">{testimonial.title}</p>
-                </div>
-              </div>
-            ))}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="border-b border-[#1e1e2e]">
+                  <th className="text-left py-3 px-4 text-[#8888a0] font-normal">Feature</th>
+                  <th className="py-3 px-4 text-[#0D9488] font-semibold">DuoWealth</th>
+                  <th className="py-3 px-4 text-[#8888a0] font-normal">Mint</th>
+                  <th className="py-3 px-4 text-[#8888a0] font-normal">YNAB</th>
+                  <th className="py-3 px-4 text-[#8888a0] font-normal">Honeydue</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ['Built for couples', true, false, false, true],
+                  ['Joint + personal view', true, false, false, true],
+                  ['Auto bill splitting', true, false, false, false],
+                  ['Joint savings goals', true, false, true, true],
+                  ['Income-based split', true, false, false, false],
+                  ['Weekly money date prompts', true, false, false, false],
+                  ['Couples finance course', true, false, false, false],
+                  ['Price per couple/mo', '$5.99', 'Discontinued', '$30+', 'Free*'],
+                ].map((row, i) => (
+                  <tr key={i} className="border-b border-[#1e1e2e]/50 hover:bg-[#12121a]/50">
+                    <td className="py-3 px-4 text-[#b0b0c8]">{row[0]}</td>
+                    {row.slice(1).map((cell, j) => (
+                      <td key={j} className="py-3 px-4 text-center">
+                        {cell === true ? (
+                          <Check size={16} className="text-[#0D9488] mx-auto" />
+                        ) : cell === false ? (
+                          <span className="text-[#4a4a5d]">—</span>
+                        ) : (
+                          <span className={j === 0 ? 'text-[#0D9488] font-semibold' : 'text-[#8888a0]'}>
+                            {cell}
+                          </span>
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="text-xs text-[#4a4a5d] mt-2 px-4">*Honeydue free tier is limited; YNAB pricing per individual.</p>
           </div>
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" id="pricing">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 text-center">
-            Construction Dashboard Pricing Plans
+      <section id="pricing" className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#e8e8f0] text-center mb-4">
+            Everything for $5.99/month per couple
           </h2>
-          <p className="text-center text-[#b0b0c8] mb-12 text-lg">
-            No credit card required. 14 days free on every plan.
-          </p>
+          <div className="text-center mb-10">
+            <p className="text-[#8888a0] text-sm mb-2">Compare to what you&apos;re probably already paying:</p>
+            <div className="flex flex-wrap justify-center gap-4 text-sm">
+              <span className="px-3 py-1 bg-[#1e1e2e] rounded-full text-[#8888a0] line-through">$200/hr couples counselor</span>
+              <span className="px-3 py-1 bg-[#1e1e2e] rounded-full text-[#8888a0] line-through">$30/mo for two separate budget apps</span>
+              <span className="px-3 py-1 bg-[#1e1e2e] rounded-full text-[#8888a0] line-through">YNAB &times; 2 = $30/mo</span>
+            </div>
+          </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Starter Tier */}
-            <div className="bg-[#12121a] border border-[#2a2a3d] rounded-xl p-8 flex flex-col">
-              <h3 className="text-2xl font-bold text-white mb-2">
-                Starter
-              </h3>
-              <p className="text-[#b0b0c8] mb-6">For solo contractors and small crews getting financial visibility</p>
-              <div className="mb-6">
-                <span className="text-4xl sm:text-5xl font-bold text-white">$199</span>
-                <span className="text-[#b0b0c8] ml-2">/month</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+            <div className="bg-[#12121a] border border-[#1e1e2e] rounded-2xl p-6">
+              <h3 className="font-semibold text-[#e8e8f0] mb-1">Monthly</h3>
+              <div className="flex items-baseline gap-1 mb-4">
+                <span className="text-4xl font-bold text-[#e8e8f0]">$5.99</span>
+                <span className="text-[#8888a0]">/month per couple</span>
               </div>
-
-              <ul className="space-y-3 mb-8 flex-1">
-                {[
-                  'Real-time financial dashboard',
-                  'Job costing & WIP tracking',
-                  'Cash flow forecasting (30/60/90 day)',
-                  'QuickBooks Online sync',
-                  'Monthly AI CFO brief',
-                  'Email support',
-                ].map((feature, idx) => (
-                  <li key={idx} className="flex items-center gap-3">
-                    <Check size={18} className="text-[#6366f1] flex-shrink-0" />
-                    <span className="text-[#d0d0e0]">{feature}</span>
+              <ul className="space-y-2 mb-6">
+                {['All features included', '14-day free trial', 'Both partners access', 'Cancel anytime'].map((f) => (
+                  <li key={f} className="flex items-center gap-2 text-sm text-[#b0b0c8]">
+                    <Check size={14} className="text-[#0D9488] flex-shrink-0" />
+                    {f}
                   </li>
                 ))}
               </ul>
-
-              <Link
-                href="/signup?plan=basic"
-                className="w-full px-4 py-3 rounded-lg font-semibold text-white bg-[#2a2a3d] hover:bg-[#3a3a4d] transition text-center block"
+              <button
+                onClick={() => handleCheckout('monthly')}
+                disabled={checkoutLoading === 'monthly'}
+                className="w-full min-h-[44px] py-3 rounded-lg border border-[#0D9488] text-[#0D9488] hover:bg-[#0D9488]/10 font-semibold transition disabled:opacity-60"
               >
-                Start Free Trial
-              </Link>
-              <Link href="#schedule" className="block text-center text-sm text-[#6366f1] hover:text-[#818cf8] mt-2">
-                or Book a Demo →
-              </Link>
+                {checkoutLoading === 'monthly' ? 'Loading...' : 'Start free trial'}
+              </button>
             </div>
 
-            {/* Professional Tier */}
-            <div className="bg-gradient-to-br from-[#6366f1]/10 to-transparent border-2 border-[#6366f1]/60 rounded-xl p-8 relative flex flex-col shadow-lg shadow-[#6366f1]/10">
-              <div className="absolute -top-3 left-6 bg-[#6366f1] text-white text-xs font-bold px-4 py-1 rounded-full tracking-wide">
-                MOST POPULAR
+            <div className="bg-[#0D9488]/10 border-2 border-[#0D9488] rounded-2xl p-6 relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#0D9488] text-white text-xs font-bold rounded-full">
+                BEST VALUE
               </div>
-
-              <h3 className="text-2xl font-bold text-white mb-2">Professional</h3>
-              <p className="text-[#b0b0c8] mb-6">For growing construction companies with $1M–$10M revenue</p>
-              <div className="mb-6">
-                <span className="text-4xl sm:text-5xl font-bold text-white">$399</span>
-                <span className="text-[#b0b0c8] ml-2">/month</span>
+              <h3 className="font-semibold text-[#e8e8f0] mb-1">Annual</h3>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-4xl font-bold text-[#e8e8f0]">$59</span>
+                <span className="text-[#8888a0]">/year per couple</span>
               </div>
-
-              <ul className="space-y-3 mb-8 flex-1">
-                {[
-                  'Everything in Starter',
-                  'Buildertrend + HubSpot + JobNimbus integrations',
-                  'Sales pipeline dashboard',
-                  'AI-powered CFO advisor',
-                  'AR/AP aging reports by job',
-                  'Priority support',
-                ].map((feature, idx) => (
-                  <li key={idx} className="flex items-center gap-3">
-                    <Check size={18} className="text-[#6366f1] flex-shrink-0" />
-                    <span className="text-[#d0d0e0]">{feature}</span>
+              <p className="text-xs text-[#0D9488] font-semibold mb-4">Save 18% — about $4.92/month</p>
+              <ul className="space-y-2 mb-6">
+                {['Everything in Monthly', '14-day free trial', 'Both partners access', 'Cancel anytime'].map((f) => (
+                  <li key={f} className="flex items-center gap-2 text-sm text-[#b0b0c8]">
+                    <Check size={14} className="text-[#0D9488] flex-shrink-0" />
+                    {f}
                   </li>
                 ))}
               </ul>
-
-              <Link
-                href="/signup?plan=pro"
-                className="w-full px-4 py-3 rounded-lg font-semibold text-white bg-[#6366f1] hover:bg-[#5558d9] transition text-center block"
+              <button
+                onClick={() => handleCheckout('annual')}
+                disabled={checkoutLoading === 'annual'}
+                className="w-full min-h-[44px] py-3 rounded-lg bg-[#0D9488] hover:bg-[#14B8A6] text-white font-semibold transition disabled:opacity-60"
               >
-                Start Free Trial
-              </Link>
-              <Link href="#schedule" className="block text-center text-sm text-[#6366f1] hover:text-[#818cf8] mt-2">
-                or Book a Demo →
-              </Link>
+                {checkoutLoading === 'annual' ? 'Loading...' : 'Start free trial'}
+              </button>
             </div>
+          </div>
 
-            {/* Enterprise Tier */}
-            <div className="bg-[#12121a] border border-[#2a2a3d] rounded-xl p-8 flex flex-col">
-              <h3 className="text-2xl font-bold text-white mb-2">Enterprise</h3>
-              <p className="text-[#b0b0c8] mb-6">For scaling operations with $10M+ revenue and multiple project managers</p>
-              <div className="mb-6">
-                <span className="text-4xl sm:text-5xl font-bold text-white">$599</span>
-                <span className="text-[#b0b0c8] ml-2">/month</span>
-              </div>
-
-              <ul className="space-y-3 mb-8 flex-1">
-                {[
-                  'Everything in Professional',
-                  'Procore + Salesforce + ServiceTitan integrations',
-                  'All 7+ integrations included',
-                  'Crew utilization tracking',
-                  'Quarterly strategy call with Salisbury Bookkeeping',
-                  'Dedicated account manager',
-                ].map((feature, idx) => (
-                  <li key={idx} className="flex items-center gap-3">
-                    <Check size={18} className="text-[#6366f1] flex-shrink-0" />
-                    <span className="text-[#d0d0e0]">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                href="/signup?plan=enterprise"
-                className="w-full px-4 py-3 rounded-lg font-semibold text-white bg-[#2a2a3d] hover:bg-[#3a3a4d] transition text-center block"
-              >
-                Start Free Trial
-              </Link>
-              <Link href="#schedule" className="block text-center text-sm text-[#6366f1] hover:text-[#818cf8] mt-2">
-                or Book a Demo →
-              </Link>
-            </div>
+          <div className="flex flex-wrap justify-center gap-6 mt-8 text-sm text-[#8888a0]">
+            <div className="flex items-center gap-2"><Shield size={14} className="text-[#0D9488]" /> 30-day money-back guarantee</div>
+            <div className="flex items-center gap-2"><Check size={14} className="text-[#0D9488]" /> We&apos;ll import your accounts for you</div>
+            <div className="flex items-center gap-2"><Check size={14} className="text-[#0D9488]" /> Cancel anytime</div>
           </div>
         </div>
       </section>
 
-      {/* FAQ Section — GEO Optimized with Question-Based H3s */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-[#12121a]/50" id="faq">
+      {/* FAQ Section */}
+      <section id="faq" className="py-16 px-4 sm:px-6 lg:px-8 bg-[#05050a]">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#e8e8f0] mb-12 text-center">
-            Frequently Asked Questions About BuilderCFO
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#e8e8f0] text-center mb-12">
+            Frequently asked questions
           </h2>
 
-          <div className="space-y-6 sm:space-y-8">
-            <div>
-              <h3 className="text-lg font-semibold text-[#e8e8f0] mb-2">What is BuilderCFO and who is it for?</h3>
-              <p className="text-[#b0b0c8]">
-                BuilderCFO is a real-time financial dashboard built specifically for construction contractors, custom home builders, and remodelers. It connects to QuickBooks Online and field management tools like Procore, Buildertrend, and ServiceTitan to provide instant visibility into job costing, WIP schedules, cash flow forecasts, and AR/AP aging. It is designed for construction companies with $500K–$50M in annual revenue who need CFO-level financial insight without the CFO-level salary.
-              </p>
-            </div>
+          <article className="faq-item mb-8">
+            <h3 className="text-lg font-semibold text-[#e8e8f0] mb-3">What is DuoWealth?</h3>
+            <p className="text-[#b0b0c8] leading-relaxed mb-3">
+              DuoWealth is a couples budgeting app that gives partners a shared financial workspace.
+              Both people see joint accounts alongside their individual spending — full transparency
+              without losing privacy.
+            </p>
+            <p className="text-[#b0b0c8] leading-relaxed mb-3">
+              DuoWealth includes auto bill-splitting (50/50 or proportional to income), joint savings
+              goals, weekly money date reminders, and a free couples finance course. It is built for
+              two people from the ground up — not a single-user app with a &quot;share&quot; button bolted on.
+            </p>
+            <p className="text-[#b0b0c8] leading-relaxed">
+              Plans start at $5.99/month per couple with a 14-day free trial. Both partners get
+              full access on the same subscription.
+            </p>
+          </article>
 
-            <div>
-              <h3 className="text-lg font-semibold text-[#e8e8f0] mb-2">How does BuilderCFO connect to QuickBooks Online?</h3>
-              <p className="text-[#b0b0c8]">
-                BuilderCFO uses OAuth 2.0 to securely connect to your QuickBooks Online account. The connection is read-only — BuilderCFO never modifies your books. Your financial data is encrypted in transit and at rest using industry-standard AES-256 encryption. Setup takes under 2 minutes.
-              </p>
-            </div>
+          <article className="faq-item mb-8">
+            <h3 className="text-lg font-semibold text-[#e8e8f0] mb-3">How does DuoWealth work for couples?</h3>
+            <p className="text-[#b0b0c8] leading-relaxed mb-3">Getting started takes about 5 minutes:</p>
+            <ol className="list-decimal list-inside space-y-2 text-[#b0b0c8] mb-3">
+              <li>One partner creates an account and names your couple.</li>
+              <li>They invite the other partner by email — the partner clicks a link and joins in under a minute.</li>
+              <li>Both partners connect their bank accounts and credit cards via secure read-only connections.</li>
+              <li>DuoWealth auto-categorizes transactions, splits recurring bills, and shows your shared goals dashboard.</li>
+              <li>Every week, DuoWealth sends both partners conversation prompts to review finances together.</li>
+            </ol>
+            <p className="text-[#b0b0c8] leading-relaxed">
+              There is no spreadsheet to maintain, no manual data entry, and no awkward &quot;who spent what&quot; conversations.
+            </p>
+          </article>
 
-            <div>
-              <h3 className="text-lg font-semibold text-[#e8e8f0] mb-2">What is WIP tracking and why does it matter for contractors?</h3>
-              <p className="text-[#b0b0c8]">
-                WIP (Work in Progress) tracking compares the percentage of work completed on a job against the percentage billed. If you&apos;ve completed 60% of a job but billed 80%, you&apos;re over-billed by 20% — which means you may owe money back or face cash flow problems when the job finishes. BuilderCFO automates WIP schedule calculations using QuickBooks data and field management progress reports, giving you accurate over/under billing figures for every active job.
-              </p>
-            </div>
+          <article className="faq-item mb-8">
+            <h3 className="text-lg font-semibold text-[#e8e8f0] mb-3">Is DuoWealth safe for joint finances?</h3>
+            <p className="text-[#b0b0c8] leading-relaxed mb-3">
+              Yes. DuoWealth uses bank-level 256-bit encryption for all data in transit and at rest.
+              Bank connections are read-only — DuoWealth can see your balances and transactions but
+              cannot move money or initiate transfers.
+            </p>
+            <p className="text-[#b0b0c8] leading-relaxed">
+              Data is stored in a Supabase PostgreSQL database with row-level security (RLS) policies
+              that ensure only your couple can see your financial data.
+            </p>
+          </article>
 
-            <div>
-              <h3 className="text-lg font-semibold text-[#e8e8f0] mb-2">How much does BuilderCFO cost compared to a full-time CFO?</h3>
-              <p className="text-[#b0b0c8]">
-                BuilderCFO starts at $199/month (Starter), $399/month (Professional), or $599/month (Enterprise). A full-time construction CFO typically costs $120,000–$200,000+ per year in salary and benefits. BuilderCFO provides real-time dashboards, automated WIP, and AI analysis for $2,388–$7,188 per year — roughly 2–5% the cost of a dedicated hire. Every plan includes a 14-day free trial.
-              </p>
-            </div>
+          <article className="faq-item mb-8">
+            <h3 className="text-lg font-semibold text-[#e8e8f0] mb-3">How does DuoWealth compare to Mint or YNAB?</h3>
+            <p className="text-[#b0b0c8] leading-relaxed mb-3">
+              Mint and YNAB are built for individuals managing personal finances. DuoWealth is
+              purpose-built for two. Key differences:
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-[#b0b0c8] mb-3">
+              <li>DuoWealth auto-splits bills between partners — Mint and YNAB do not.</li>
+              <li>DuoWealth shows both partners&apos; spending in one view — YNAB requires separate accounts.</li>
+              <li>DuoWealth sends weekly money date conversation prompts — no other app does this.</li>
+              <li>YNAB costs $14.99/month per person — $30/month for a couple. DuoWealth is $5.99/month for both.</li>
+              <li>Mint was discontinued in 2024. DuoWealth is actively developed.</li>
+            </ul>
+          </article>
 
-            <div>
-              <h3 className="text-lg font-semibold text-[#e8e8f0] mb-2">Who built BuilderCFO?</h3>
-              <p className="text-[#b0b0c8]">
-                BuilderCFO was built by{' '}
-                <a href="https://salisburybookkeeping.com" target="_blank" rel="noopener noreferrer" className="text-[#6366f1] hover:text-[#818cf8] transition">
-                  Salisbury Bookkeeping
-                </a>
-                , a fractional controller and construction bookkeeping firm that works with custom home builders, general contractors, and remodelers nationwide. The dashboard was created from real client needs — the same WIP schedules, job costing reports, and cash flow forecasts that Salisbury&apos;s controllers build manually for clients, now automated and available in real time.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold text-[#e8e8f0] mb-2">Is my financial data secure?</h3>
-              <p className="text-[#b0b0c8]">
-                Yes. BuilderCFO uses Supabase for secure database hosting with row-level security policies, and Stripe for PCI-compliant payment processing. All data is encrypted in transit (TLS 1.3) and at rest (AES-256). The QuickBooks connection is read-only — BuilderCFO cannot create, modify, or delete any data in your accounting system.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold text-[#e8e8f0] mb-2">Can I cancel my BuilderCFO subscription at any time?</h3>
-              <p className="text-[#b0b0c8]">
-                Yes. There are no long-term contracts, no cancellation fees, and no setup fees. You can cancel your subscription at any time and retain access through the end of your current billing cycle. Every plan starts with a 14-day free trial — no credit card required during the trial. You&apos;ll only be asked for payment details when you decide to continue after 14 days.
-              </p>
-            </div>
-          </div>
+          <article className="faq-item mb-8">
+            <h3 className="text-lg font-semibold text-[#e8e8f0] mb-3">Can roommates or partners who are not married use DuoWealth?</h3>
+            <p className="text-[#b0b0c8] leading-relaxed mb-3">
+              Absolutely. DuoWealth works for any two people who share financial lives — married
+              couples, engaged partners, long-term partners, and roommates who split rent and bills.
+              You do not need a joint bank account to use DuoWealth.
+            </p>
+            <p className="text-[#b0b0c8] leading-relaxed">
+              The bill-splitting feature is especially useful for roommates: add your shared bills,
+              choose 50/50 or custom splits, and DuoWealth tracks who owes what each month automatically.
+            </p>
+          </article>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#6366f1]/5 via-transparent to-[#a78bfa]/5 pointer-events-none" />
-
-        <div className="max-w-3xl mx-auto text-center relative">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#e8e8f0] mb-4">
-            Ready to See Where Every Dollar Goes on Every Job?
-          </h2>
-          <p className="text-lg text-[#b0b0c8] mb-8">
-            Join contractors nationwide who use BuilderCFO to track job costs, forecast cash flow, and make smarter financial decisions — starting with a free 14-day trial.
+      {/* Final CTA */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 text-center">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#e8e8f0] mb-4">Ready to stop fighting about money?</h2>
+          <p className="text-[#8888a0] mb-8">
+            Join couples who are paying down debt, hitting savings goals, and actually talking about money productively.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/signup"
-              className="inline-flex items-center gap-2 px-8 py-3 rounded font-semibold text-white bg-[#6366f1] hover:bg-[#5558d9] transition"
-            >
-              Start Free — No Card Required <ChevronRight size={18} />
-            </Link>
-            <Link
-              href="#schedule"
-              className="inline-flex items-center gap-2 px-8 py-3 rounded font-semibold text-[#6366f1] border border-[#6366f1] hover:bg-[#6366f1]/10 transition"
-            >
-              Book a Demo →
-            </Link>
-          </div>
-          <p className="text-sm text-[#8888a0] mt-4">
-            No credit card required. Cancel anytime. Built by{' '}
-            <a href="https://salisburybookkeeping.com" target="_blank" rel="noopener noreferrer" className="text-[#6366f1] hover:text-[#818cf8] transition">
-              Salisbury Bookkeeping
-            </a>.
-          </p>
+          <button
+            onClick={() => handleCheckout('monthly')}
+            disabled={checkoutLoading === 'monthly'}
+            className="min-h-[44px] px-10 py-4 rounded-xl bg-[#0D9488] hover:bg-[#14B8A6] text-white font-semibold text-lg transition inline-flex items-center gap-2 disabled:opacity-60"
+          >
+            {checkoutLoading === 'monthly' ? 'Loading...' : 'Start your 14-day free trial'}
+            {!checkoutLoading && <ChevronRight size={20} />}
+          </button>
+          <p className="text-xs text-[#4a4a5d] mt-3">$5.99/month per couple after trial. 30-day money-back guarantee.</p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#12121a] border-t border-[#1e1e2e] py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+      <footer className="border-t border-[#1e1e2e] py-10 px-4 sm:px-6 lg:px-8 bg-[#05050a]">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8">
             <div>
-              <h4 className="text-sm font-semibold text-[#8888a0] mb-4 uppercase">
-                Product
-              </h4>
-              <ul className="space-y-2">
-                <li>
-                  <a href="#" className="text-[#e8e8f0] hover:text-[#6366f1]">
-                    Features
-                  </a>
-                </li>
-                <li>
-                  <a href="#pricing" className="text-[#e8e8f0] hover:text-[#6366f1]">
-                    Pricing
-                  </a>
-                </li>
-                <li>
-                  <a href="#faq" className="text-[#e8e8f0] hover:text-[#6366f1]">
-                    FAQ
-                  </a>
-                </li>
-              </ul>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-7 h-7 rounded-lg bg-[#0D9488] flex items-center justify-center font-bold text-xs text-white">DW</div>
+                <span className="font-bold text-[#e8e8f0]">Duo<span className="text-[#0D9488]">Wealth</span></span>
+              </div>
+              <p className="text-xs text-[#4a4a5d]">The budgeting app built for two.</p>
             </div>
-            <div>
-              <h4 className="text-sm font-semibold text-[#8888a0] mb-4 uppercase">
-                Company
-              </h4>
-              <ul className="space-y-2">
-                <li>
-                  <a href="https://salisburybookkeeping.com" target="_blank" rel="noopener noreferrer" className="text-[#e8e8f0] hover:text-[#6366f1]">
-                    Salisbury Bookkeeping
-                  </a>
-                </li>
-                <li>
-                  <a href="https://salisburybookkeeping.com/about" target="_blank" rel="noopener noreferrer" className="text-[#e8e8f0] hover:text-[#6366f1]">
-                    About Us
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold text-[#8888a0] mb-4 uppercase">
-                Legal
-              </h4>
-              <ul className="space-y-2">
-                <li>
-                  <a href="#" className="text-[#e8e8f0] hover:text-[#6366f1]">
-                    Privacy Policy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-[#e8e8f0] hover:text-[#6366f1]">
-                    Terms of Service
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold text-[#8888a0] mb-4 uppercase">
-                Contact
-              </h4>
-              <ul className="space-y-2">
-                <li>
-                  <a
-                    href="mailto:support@topbuildercfo.com"
-                    className="text-[#e8e8f0] hover:text-[#6366f1]"
-                  >
-                    support@topbuildercfo.com
-                  </a>
-                </li>
-                <li>
-                  <a href="https://salisburybookkeeping.com" target="_blank" rel="noopener noreferrer" className="text-[#e8e8f0] hover:text-[#6366f1]">
-                    Salisbury Bookkeeping
-                  </a>
-                </li>
-              </ul>
+            <div className="flex flex-wrap gap-4 text-sm text-[#8888a0]">
+              <a href="#features" className="hover:text-[#0D9488] transition">Features</a>
+              <a href="#pricing" className="hover:text-[#0D9488] transition">Pricing</a>
+              <a href="#faq" className="hover:text-[#0D9488] transition">FAQ</a>
+              <Link href="/login" className="hover:text-[#0D9488] transition">Sign In</Link>
+              <Link href="/privacy" className="hover:text-[#0D9488] transition">Privacy</Link>
+              <Link href="/terms" className="hover:text-[#0D9488] transition">Terms</Link>
             </div>
           </div>
-
-          <div className="border-t border-[#1e1e2e] pt-8 flex flex-col md:flex-row items-center justify-between">
-            <div className="text-sm text-[#8888a0]">
-              © 2026 BuilderCFO. All rights reserved.
-            </div>
-            <div className="text-sm text-[#8888a0] mt-4 md:mt-0">
-              Built by <a href="https://salisburybookkeeping.com" target="_blank" rel="noopener noreferrer" className="text-[#6366f1] hover:text-[#818cf8] transition">Salisbury Bookkeeping</a> — Fractional Controllers for Construction Companies
-            </div>
+          <div className="border-t border-[#1e1e2e] pt-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-[#4a4a5d]">
+            <p>© 2026 DuoWealth. All rights reserved.</p>
+            <p>Last updated April 2026</p>
           </div>
         </div>
       </footer>
-
-      {/* Sticky Mobile CTA Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#12121a]/95 backdrop-blur border-t border-[#1e1e2e] p-3 flex items-center justify-between gap-3 z-50 sm:hidden">
-        <div className="text-xs text-[#b0b0c8] leading-tight">
-          <span className="font-semibold text-[#e8e8f0]">14 days free</span> — no card needed
-        </div>
-        <div className="flex gap-2 flex-shrink-0">
-          <Link
-            href="/demo"
-            className="px-3 py-2 rounded text-xs font-semibold text-[#6366f1] border border-[#6366f1] hover:bg-[#6366f1]/10 transition"
-          >
-            Demo
-          </Link>
-          <Link
-            href="/signup"
-            className="px-3 py-2 rounded text-xs font-semibold text-white bg-[#6366f1] hover:bg-[#5558d9] transition"
-          >
-            Start Free
-          </Link>
-        </div>
-      </div>
     </div>
   );
 }
