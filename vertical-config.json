@@ -1,0 +1,106 @@
+{
+  "name": "DuoWealth",
+  "slug": "duowealth",
+  "industry": "Couples Budgeting & Shared Finance",
+  "targetAudience": "Couples and newlyweds merging finances who need real-time visibility across joint and individual accounts",
+  "accentColor": "#10B981",
+  "brand": {
+    "steps": [
+      {
+        "ts": "2026-04-10T02:42:19.308Z",
+        "step": "Checking if CorySlsbry/duowealth already exists..."
+      },
+      {
+        "ts": "2026-04-10T02:42:19.500Z",
+        "step": "Creating new repo from template: CorySlsbry/Contractor-CFO-Dashboard → duowealth..."
+      },
+      {
+        "ts": "2026-04-10T02:42:20.527Z",
+        "step": "New repo created: https://github.com/CorySlsbry/duowealth"
+      },
+      {
+        "ts": "2026-04-10T02:42:23.669Z",
+        "step": "Repository initialized"
+      }
+    ],
+    "branch": "main",
+    "method": "template",
+    "tagline": "The budgeting app built for two.",
+    "industry": "Couples Budgeting & Shared Finance",
+    "repo_url": "https://github.com/CorySlsbry/duowealth",
+    "clone_url": "https://github.com/CorySlsbry/duowealth.git",
+    "repo_name": "duowealth",
+    "build_mode": "mobile_pwa",
+    "repo_owner": "CorySlsbry",
+    "pain_points": [
+      {
+        "problem": "Arguing over who paid for what and settling up at the end of the month",
+        "severity": "high",
+        "current_solution": "Using complex shared Excel spreadsheets or sending endless Venmo requests."
+      }
+    ],
+    "vertical_id": "9e9b8eb6-67a4-48ab-9197-b5908843693e",
+    "accent_color": "#10B981",
+    "target_store": "Google Play Store (TWA)",
+    "win_strategy": "Partner with wedding planners and personal finance influencers on Instagram/TikTok targeting engaged couples.",
+    "hook_headline": "Stop fighting over money. Manage your joint budget seamlessly in 5 minutes a week.",
+    "review_themes": [
+      {
+        "theme": "Bank sync drops constantly",
+        "our_fix": "Utilize Finicity + MX as fallbacks for Plaid to ensure 99% uptime on bank connections.",
+        "severity": "high",
+        "sample_quote": "Every 3 days I have to re-authenticate my bank. Plaid integration is completely broken.",
+        "apps_affected": [
+          "Honeydue"
+        ]
+      },
+      {
+        "theme": "Lack of 'Yours, Mine, Ours' separation",
+        "our_fix": "Granular privacy controls allowing partners to share specific accounts/cards while keeping individual accounts private but factored into net worth.",
+        "severity": "medium",
+        "sample_quote": "It lumps everything together. I want to see our joint expenses, but keep my personal checking private.",
+        "apps_affected": [
+          "Goodbudget"
+        ]
+      }
+    ],
+    "risk_reversal": "30-day free trial, no credit card required to connect your bank.",
+    "vertical_name": "DuoWealth",
+    "app_description": "The budgeting app built for two.",
+    "target_audience": "Couples and newlyweds merging finances who need real-time visibility across joint and individual accounts",
+    "top_competitors": [
+      {
+        "name": "Honeydue",
+        "pricing": "Free (Ad-supported / Tipping)",
+        "weakness": "Constant bank disconnection issues and delayed transaction syncing",
+        "estimated_customers": "~500 thousand installs / 15 thousand reviews"
+      },
+      {
+        "name": "Goodbudget",
+        "pricing": "$8.00/mo subscription",
+        "weakness": "Manual entry only on the free tier, no automated bank sync",
+        "estimated_customers": "~5 million installs / 60 thousand reviews"
+      }
+    ],
+    "revenue_potential": "$5.99/mo per couple",
+    "key_differentiator": "Flawless bank syncing using multiple data aggregators, solving the #1 reason couples abandon finance apps.",
+    "must_have_features": [
+      "Reliable automated bank sync",
+      "Granular account privacy settings",
+      "Transaction commenting/flagging"
+    ],
+    "our_10x_advantages": [
+      "Multi-aggregator bank sync (Plaid + MX + Finicity) for zero dropped connections",
+      "True 'Yours, Mine, Ours' dashboard views",
+      "Built-in 'Settle Up' feature to instantly square away split bills",
+      "Automated categorization AI trained specifically on household expenses",
+      "In-app chat on specific transactions (e.g., 'What was this Amazon charge?')"
+    ],
+    "target_business_count": "~10 million Google Play Store users in this category"
+  },
+  "kpis": [],
+  "integrations": [],
+  "pricing": {},
+  "generatedAt": "2026-04-10T03:04:23.281Z",
+  "generatedBy": "jarvis-pipeline"
+}
