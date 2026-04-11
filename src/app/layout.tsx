@@ -19,20 +19,21 @@ export const metadata: Metadata = {
     'family budget app',
   ],
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://duowealth.vercel.app'),
+  // Note: openGraph.images and twitter.images are INTENTIONALLY omitted
+  // so Next.js auto-discovers src/app/opengraph-image.tsx and serves the
+  // dynamically-generated, branded OG image at /opengraph-image.
   openGraph: {
     type: 'website',
     siteName: 'DuoWealth',
     title: 'DuoWealth — The Budgeting App Built for Two',
     description:
       'Stop fighting about money. Start winning together. Shared dashboard, joint goals, bill splitting, real-time sync between partners.',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'DuoWealth' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'DuoWealth — The Budgeting App Built for Two',
     description:
       'Shared finances made simple. $5.99/mo per couple, 14-day free trial.',
-    images: ['/og-image.png'],
   },
   icons: { icon: '/favicon.ico' },
 };
