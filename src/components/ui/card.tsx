@@ -1,33 +1,24 @@
 'use client';
 
 import React from 'react';
-import { useChartTheme } from '@/components/chart-theme-provider';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'default' | 'metric' | 'highlighted';
 }
 
+// DuoWealth uses a fixed dark-card theme — no theme provider.
+const ds = {
+  cardBg: '#0f1f1d',
+  cardBorder: '#1f3833',
+  cardShadow: 'none' as const,
+  cardBlur: undefined as string | undefined,
+  cardGradient: undefined as string | undefined,
+  borderRadius: '0.75rem',
+};
+const tc = { primary: '#0d9488' };
+
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = 'default', style, ...props }, ref) => {
-    let ds: any;
-    let tc: any;
-    try {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { theme } = useChartTheme();
-      ds = theme.dashboard;
-      tc = theme.colors;
-    } catch {
-      // Fallback if outside provider (e.g. admin pages)
-      ds = {
-        cardBg: '#12121a',
-        cardBorder: '#2a2a3d',
-        cardShadow: 'none',
-        cardBlur: undefined,
-        cardGradient: undefined,
-        borderRadius: '0.5rem',
-      };
-      tc = { primary: '#6366f1' };
-    }
 
     const baseStyle: React.CSSProperties = {
       backgroundColor: ds.cardBg,

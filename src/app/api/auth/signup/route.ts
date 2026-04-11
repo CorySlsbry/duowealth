@@ -60,7 +60,30 @@ export async function POST(request: NextRequest) {
 
     const userId = authData.user.id;
 
-    // 2. Create the couple shell
+    // 2. Create profile row in duowealth.profiles (was previously a trigger)
+    const { error: profileErr } = await (supabase as any)
+      .from("profiles")
+      .insert({ id: userId, email });
+
+    if (profileErr) {
+      // Rollback the auth user — profiles row is required
+      await (supabase.auth as any).admin.deleteUser(userId);
+      console.error("Profile create error:", profileErr);
+      return NextResponse.json(
+        { error: "Failed to create user profile: " + profileErr.message },
+        { status: 500 }
+      );
+    }
+
+    // 3. Generate a referral code for the new user (best-effort, non-fatal)
+    const { error: refErr } = await (supabase as any).rpc("generate_referral_code", {
+      p_user_id: userId,
+    });
+    if (refErr) {
+      console.error("Referral code generation error (non-fatal):", refErr);
+    }
+
+    // 4. Create the couple shell
     const { data: couple, error: coupleErr } = await (supabase as any)
       .from("couples")
       .insert({ name: `${fullName}'s couple` })
@@ -68,7 +91,8 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (coupleErr || !couple?.id) {
-      // Rollback: delete the auth user since couple creation failed
+      // Rollback: delete profile + auth user since couple creation failed
+      await (supabase as any).from("profiles").delete().eq("id", userId);
       await (supabase.auth as any).admin.deleteUser(userId);
       console.error("Couple create error:", coupleErr);
       return NextResponse.json(
@@ -87,8 +111,9 @@ export async function POST(request: NextRequest) {
       });
 
     if (memberErr) {
-      // Rollback: delete couple + auth user
+      // Rollback: delete couple + profile + auth user
       await (supabase as any).from("couples").delete().eq("id", couple.id);
+      await (supabase as any).from("profiles").delete().eq("id", userId);
       await (supabase.auth as any).admin.deleteUser(userId);
       console.error("Couple member create error:", memberErr);
       return NextResponse.json(

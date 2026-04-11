@@ -13,6 +13,7 @@ import {
   Bell,
   LogOut,
   Heart,
+  type LucideIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -21,7 +22,7 @@ import { createBrowserClient } from '@supabase/ssr';
 interface NavItem {
   label: string;
   href: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: LucideIcon;
 }
 
 const navItems: NavItem[] = [

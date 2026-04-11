@@ -148,8 +148,10 @@ export async function qualifyAndReward(
 
   try {
     const stripe = stripeClient();
+    // Stripe v20+ removed top-level `coupon` on subscription updates;
+    // discounts must now be passed as an array of {coupon} objects.
     await stripe.subscriptions.update(sub.stripe_subscription_id, {
-      coupon: COUPON_ID,
+      discounts: [{ coupon: COUPON_ID }],
     });
     await supabase.rpc("mark_referral_coupon_applied", {
       p_user_id: referrerUserId,

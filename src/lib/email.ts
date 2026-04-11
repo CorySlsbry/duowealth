@@ -116,6 +116,40 @@ function trialEndingSoonEmailHtml(name: string, daysLeft: number): string {
 </html>`;
 }
 
+function passwordResetEmailHtml(resetLink: string): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0a0a0f;font-family:Arial,sans-serif;">
+  <div style="max-width:560px;margin:0 auto;padding:40px 20px;">
+    <div style="text-align:center;margin-bottom:30px;">
+      <div style="display:inline-flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;background:#0D9488;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;color:white;font-size:12px;">DW</div>
+        <span style="font-size:20px;font-weight:bold;color:#e8e8f0;">Duo<span style="color:#0D9488">Wealth</span></span>
+      </div>
+    </div>
+    <div style="background:#12121a;border:1px solid #2a2a3d;border-radius:16px;padding:32px;">
+      <h1 style="color:#e8e8f0;font-size:22px;margin:0 0 16px;">Reset your DuoWealth password</h1>
+      <p style="color:#b0b0c8;line-height:1.6;margin:0 0 16px;">
+        We received a request to reset the password on your DuoWealth account.
+        Click the button below to choose a new one. This link is good for the next hour.
+      </p>
+      <a href="${resetLink}" style="display:block;background:#0D9488;color:white;text-align:center;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:600;font-size:16px;">
+        Reset Password
+      </a>
+      <p style="color:#4a4a5d;font-size:12px;text-align:center;margin-top:24px;">
+        Didn&rsquo;t request this? You can safely ignore this email &mdash; your password won&rsquo;t change.
+      </p>
+    </div>
+    <p style="color:#4a4a5d;text-align:center;font-size:12px;margin-top:24px;">
+      DuoWealth &middot; a Salisbury Bookkeeping product
+    </p>
+  </div>
+</body>
+</html>`;
+}
+
 function paymentFailedEmailHtml(name: string): string {
   return `
 <!DOCTYPE html>
@@ -169,6 +203,15 @@ export async function sendTrialEndingSoonEmail(email: string, name: string, days
     to: email,
     subject: `Your DuoWealth trial ends in ${daysLeft} days`,
     html: trialEndingSoonEmailHtml(name, daysLeft),
+  });
+}
+
+export async function sendPasswordResetEmail(email: string, resetLink: string) {
+  return getResend().emails.send({
+    from: FROM_EMAIL,
+    to: email,
+    subject: 'Reset your DuoWealth password',
+    html: passwordResetEmailHtml(resetLink),
   });
 }
 

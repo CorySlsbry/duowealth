@@ -33,6 +33,29 @@ const stripe = {
   subscriptions: { retrieve: (id: string) => getStripeClient().subscriptions.retrieve(id) },
 };
 
+/**
+ * Stripe v20+ moved `current_period_end` from Subscription onto each
+ * SubscriptionItem. Fall back to the legacy top-level field for older
+ * webhook payloads still in flight from previous API versions.
+ */
+function getPeriodEnd(subscription: Stripe.Subscription): number {
+  const item = subscription.items?.data?.[0] as any;
+  return (item?.current_period_end ?? (subscription as any).current_period_end ?? 0) as number;
+}
+
+/**
+ * Stripe v20+ moved `Invoice.subscription` to
+ * `Invoice.parent.subscription_details.subscription`. Read from the new
+ * location first, fall back to the legacy top-level field.
+ */
+function getInvoiceSubscriptionId(invoice: Stripe.Invoice): string | null {
+  const fromParent = (invoice as any).parent?.subscription_details?.subscription;
+  const legacy = (invoice as any).subscription;
+  const value = fromParent ?? legacy;
+  if (!value) return null;
+  return typeof value === "string" ? value : value.id ?? null;
+}
+
 async function upsertSubscription(params: {
   coupleId?: string;
   stripeCustomerId: string;
@@ -204,7 +227,7 @@ export async function POST(request: NextRequest) {
             stripeSubscriptionId: subscription.id,
             priceId,
             status: subscription.status,
-            currentPeriodEnd: (subscription as any).current_period_end,
+            currentPeriodEnd: getPeriodEnd(subscription),
           });
 
           console.log(`✓ checkout.session.completed: ${subscription.id}`);
@@ -246,7 +269,7 @@ export async function POST(request: NextRequest) {
           stripeSubscriptionId: subscription.id,
           priceId,
           status: subscription.status,
-          currentPeriodEnd: (subscription as any).current_period_end,
+          currentPeriodEnd: getPeriodEnd(subscription),
         });
 
         console.log(`✓ ${event.type}: ${subscription.id} → ${subscription.status}`);
@@ -264,11 +287,12 @@ export async function POST(request: NextRequest) {
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice;
-        if (invoice.subscription) {
+        const subId = getInvoiceSubscriptionId(invoice);
+        if (subId) {
           await supabase
             .from('subscriptions')
             .update({ status: 'past_due', updated_at: new Date().toISOString() })
-            .eq('stripe_subscription_id', invoice.subscription as string);
+            .eq('stripe_subscription_id', subId);
         }
         break;
       }

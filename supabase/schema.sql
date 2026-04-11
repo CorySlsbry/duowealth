@@ -1,6 +1,6 @@
 -- ============================================================================
--- Contractor CFO Dashboard - Supabase Database Schema
--- Multi-tenant SaaS for contractor bookkeeping
+-- DuoWealth - Supabase Database Schema
+-- Couples-first personal finance app
 -- ============================================================================
 
 -- ============================================================================

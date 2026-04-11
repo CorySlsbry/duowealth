@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Heart } from 'lucide-react';
 import { createBrowserClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
@@ -42,12 +43,17 @@ export default function LoginPage() {
       <div className="bg-[#12121a] rounded-lg border border-[#1e1e2e] p-8 shadow-2xl">
         {/* Branding */}
         <div className="mb-8 text-center">
-          <h1 className="font-bold text-2xl tracking-tight mb-1">
-            <span className="text-[#10B981]">Builder</span><span className="text-[#e8e8f0]">CFO</span>
-          </h1>
-          <p className="text-sm text-[#8888a0]">
-            by DuoWealth
-          </p>
+          <div className="inline-flex items-center gap-2 mb-2">
+            <div className="w-9 h-9 rounded-lg bg-[#0D9488] flex items-center justify-center">
+              <Heart size={18} className="text-white" />
+            </div>
+            <h1 className="font-bold text-2xl tracking-tight">
+              <span className="text-[#0D9488]">Duo</span><span className="text-[#e8e8f0]">Wealth</span>
+            </h1>
+          </div>
+          <h2 className="text-lg font-semibold text-[#e8e8f0]">
+            Welcome Back
+          </h2>
         </div>
 
         {/* Form */}
@@ -67,7 +73,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@company.com"
               required
-              className="w-full px-4 py-2 rounded bg-[#0a0a0f] border border-[#1e1e2e] text-[#e8e8f0] placeholder-[#8888a0] focus:outline-none focus:border-[#10B981] transition"
+              className="w-full px-4 py-2 rounded bg-[#0a0a0f] border border-[#1e1e2e] text-[#e8e8f0] placeholder-[#8888a0] focus:outline-none focus:border-[#0D9488] transition"
             />
           </div>
 
@@ -86,7 +92,7 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full px-4 py-2 rounded bg-[#0a0a0f] border border-[#1e1e2e] text-[#e8e8f0] placeholder-[#8888a0] focus:outline-none focus:border-[#10B981] transition"
+              className="w-full px-4 py-2 rounded bg-[#0a0a0f] border border-[#1e1e2e] text-[#e8e8f0] placeholder-[#8888a0] focus:outline-none focus:border-[#0D9488] transition"
             />
           </div>
 
@@ -101,7 +107,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full px-4 py-2 rounded font-semibold text-white bg-[#10B981] hover:bg-[#5558d9] disabled:opacity-50 disabled:cursor-not-allowed transition"
+            className="w-full px-4 py-2 rounded font-semibold text-white bg-[#0D9488] hover:bg-[#0b7d72] disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
@@ -113,7 +119,7 @@ export default function LoginPage() {
             <span className="text-[#8888a0]">Don't have an account? </span>
             <Link
               href="/signup"
-              className="text-[#10B981] hover:text-[#7c7fe5] font-medium transition"
+              className="text-[#0D9488] hover:text-[#14b8a6] font-medium transition"
             >
               Start your free trial
             </Link>

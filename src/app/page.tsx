@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Check,
   ChevronRight,
@@ -14,16 +15,6 @@ import {
   Menu,
   X,
 } from 'lucide-react';
-
-async function startCheckout(priceId: string) {
-  const res = await fetch('/api/checkout', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ priceId }),
-  });
-  const { url } = await res.json();
-  if (url) window.location.href = url;
-}
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -125,22 +116,13 @@ const jsonLd = {
 };
 
 export default function LandingPage() {
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<'monthly' | 'annual' | null>(null);
 
-  const handleCheckout = async (plan: 'monthly' | 'annual') => {
+  const handleCheckout = (plan: 'monthly' | 'annual') => {
     setCheckoutLoading(plan);
-    try {
-      const priceId =
-        plan === 'monthly'
-          ? process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY || ''
-          : process.env.NEXT_PUBLIC_STRIPE_PRICE_ANNUAL || '';
-      await startCheckout(priceId);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setCheckoutLoading(null);
-    }
+    router.push(`/signup?plan=${plan}`);
   };
 
   return (
