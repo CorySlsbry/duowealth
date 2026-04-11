@@ -18,7 +18,14 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://duowealth.app';
 
 // ── Email Templates ─────────────────────────────────────
 
-function welcomeEmailHtml(name: string): string {
+function welcomeEmailHtml(name: string, setupLink?: string): string {
+  const ctaHref = setupLink || `${APP_URL}/dashboard`;
+  const ctaLabel = setupLink ? 'Set Your Password' : 'Set Up Your Budget';
+  const setupBlurb = setupLink
+    ? `<p style="color:#b0b0c8;line-height:1.6;margin:0 0 16px;">
+         First, set your password using the button below. The link is good for the next 24 hours.
+       </p>`
+    : '';
   return `
 <!DOCTYPE html>
 <html>
@@ -32,7 +39,8 @@ function welcomeEmailHtml(name: string): string {
       </div>
     </div>
     <div style="background:#12121a;border:1px solid #2a2a3d;border-radius:16px;padding:32px;">
-      <h1 style="color:#e8e8f0;font-size:24px;margin:0 0 16px;">Welcome to DuoWealth, ${name}!</h1>
+      <h1 style="color:#e8e8f0;font-size:24px;margin:0 0 16px;">Welcome to DuoWealth${name ? `, ${name}` : ''}!</h1>
+      ${setupBlurb}
       <p style="color:#b0b0c8;line-height:1.6;margin:0 0 16px;">
         You're one step away from getting your couple on the same financial page. Here's how to get started:
       </p>
@@ -41,8 +49,8 @@ function welcomeEmailHtml(name: string): string {
         <li>Connect your bank accounts and credit cards</li>
         <li>Set your first joint savings goal</li>
       </ol>
-      <a href="${APP_URL}/dashboard" style="display:block;background:#0D9488;color:white;text-align:center;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:600;font-size:16px;">
-        Set Up Your Budget
+      <a href="${ctaHref}" style="display:block;background:#0D9488;color:white;text-align:center;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:600;font-size:16px;">
+        ${ctaLabel}
       </a>
     </div>
     <p style="color:#4a4a5d;text-align:center;font-size:12px;margin-top:24px;">
@@ -131,12 +139,12 @@ function paymentFailedEmailHtml(name: string): string {
 
 // ── Email Sending Functions ─────────────────────────────
 
-export async function sendWelcomeEmail(email: string, name: string) {
+export async function sendWelcomeEmail(email: string, name: string, setupLink?: string) {
   return getResend().emails.send({
     from: FROM_EMAIL,
     to: email,
-    subject: `Welcome to DuoWealth, ${name}! Here's how to invite your partner`,
-    html: welcomeEmailHtml(name),
+    subject: `Welcome to DuoWealth${name ? `, ${name}` : ''}! Here's how to get started`,
+    html: welcomeEmailHtml(name, setupLink),
   });
 }
 
@@ -171,4 +179,65 @@ export async function sendPaymentFailedEmail(email: string, name: string) {
     subject: `Action needed: Update your DuoWealth payment method`,
     html: paymentFailedEmailHtml(name),
   });
+}
+
+/**
+ * Generic helper for ad-hoc transactional sends (used by referral flow).
+ */
+export async function sendEmail(params: {
+  to: string;
+  subject: string;
+  html: string;
+}) {
+  try {
+    await getResend().emails.send({
+      from: FROM_EMAIL,
+      to: params.to,
+      subject: params.subject,
+      html: params.html,
+    });
+  } catch (err) {
+    console.error('[email] Failed to send email:', err);
+  }
+}
+
+/**
+ * Friend-invite email sent from the ReferralModal flow.
+ * Called by /api/referrals/send-invites.
+ */
+export function inviteFriendEmailHtml(opts: {
+  inviterEmail: string;
+  appName: string;
+  link: string;
+}): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0a0a0f;font-family:Arial,sans-serif;">
+  <div style="max-width:560px;margin:0 auto;padding:40px 20px;">
+    <div style="text-align:center;margin-bottom:30px;">
+      <span style="font-size:20px;font-weight:bold;color:#e8e8f0;">Duo<span style="color:#0D9488">Wealth</span></span>
+    </div>
+    <div style="background:#12121a;border:1px solid #2a2a3d;border-radius:16px;padding:32px;">
+      <h1 style="color:#e8e8f0;font-size:22px;margin:0 0 16px;">${opts.inviterEmail} sent you 20% off ${opts.appName}</h1>
+      <p style="color:#b0b0c8;line-height:1.6;margin:0 0 16px;">
+        Your friend thinks your couple will love ${opts.appName} &mdash; the budgeting app built for two people who want to build one financial life.
+      </p>
+      <p style="color:#b0b0c8;line-height:1.6;margin:0 0 24px;">
+        They sent you a personal invite that comes with <strong style="color:#0D9488;">20% off for life</strong>. Applied automatically at checkout &mdash; no code needed.
+      </p>
+      <a href="${opts.link}" style="display:block;background:#0D9488;color:white;text-align:center;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:600;font-size:16px;">
+        Claim 20% off &rarr;
+      </a>
+      <p style="color:#4a4a5d;font-size:12px;text-align:center;margin-top:16px;">
+        If you didn&rsquo;t expect this email, you can safely ignore it.
+      </p>
+    </div>
+    <p style="color:#4a4a5d;text-align:center;font-size:12px;margin-top:24px;">
+      DuoWealth &middot; a Salisbury Bookkeeping product
+    </p>
+  </div>
+</body>
+</html>`;
 }

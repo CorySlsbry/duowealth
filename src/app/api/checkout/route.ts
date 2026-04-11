@@ -2,7 +2,7 @@
  * DuoWealth — Stripe Checkout Session
  * POST /api/checkout
  *
- * Body: { priceId }
+ * Body: { priceId, refCode?, customerEmail?, applyReferralDiscount? }
  * Returns: { url } — redirect browser to Stripe Checkout
  * Trial: 14 days
  */
@@ -24,6 +24,7 @@ function getStripe(): Stripe {
 }
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://duowealth.vercel.app';
+const REFERRAL_COUPON_ID = process.env.STRIPE_REFERRAL_COUPON_ID || 'REFER2_20OFF';
 
 const VALID_PRICE_IDS = new Set([
   process.env.STRIPE_PRICE_MONTHLY,
@@ -33,17 +34,26 @@ const VALID_PRICE_IDS = new Set([
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { priceId } = body as { priceId?: string };
+    const {
+      priceId,
+      refCode: refCodeFromBody,
+      customerEmail: customerEmailFromBody,
+      applyReferralDiscount,
+    } = body as {
+      priceId?: string;
+      refCode?: string;
+      customerEmail?: string;
+      applyReferralDiscount?: boolean;
+    };
 
     if (!priceId) {
       return NextResponse.json({ error: 'priceId is required' }, { status: 400 });
     }
-
     if (VALID_PRICE_IDS.size > 0 && !VALID_PRICE_IDS.has(priceId)) {
       return NextResponse.json({ error: 'Invalid price' }, { status: 400 });
     }
 
-    let customerEmail: string | undefined;
+    let customerEmail: string | undefined = customerEmailFromBody?.trim() || undefined;
     let customerId: string | undefined;
 
     try {
@@ -51,7 +61,7 @@ export async function POST(request: NextRequest) {
       const { data: { user } } = await supabase.auth.getUser();
 
       if (user?.email) {
-        customerEmail = user.email;
+        customerEmail = customerEmail || user.email;
 
         const { data: sub } = await supabase
           .from('subscriptions')
@@ -67,6 +77,9 @@ export async function POST(request: NextRequest) {
       // Auth lookup failed — proceed as guest checkout
     }
 
+    const cookieRefCode = request.cookies.get('ref_code')?.value;
+    const refCode = refCodeFromBody || cookieRefCode || undefined;
+
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -76,8 +89,18 @@ export async function POST(request: NextRequest) {
       subscription_data: {
         trial_period_days: 14,
       },
-      allow_promotion_codes: true,
+      metadata: {
+        priceId,
+        refCode: refCode || '',
+        schema: process.env.NEXT_PUBLIC_APP_SCHEMA || 'duowealth',
+      },
     };
+
+    if (applyReferralDiscount && refCode) {
+      sessionParams.discounts = [{ coupon: REFERRAL_COUPON_ID }];
+    } else {
+      sessionParams.allow_promotion_codes = true;
+    }
 
     if (customerId) {
       sessionParams.customer = customerId;
