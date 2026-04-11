@@ -5,11 +5,21 @@
  * Body: { priceId, refCode?, customerEmail?, applyReferralDiscount? }
  * Returns: { url } — redirect browser to Stripe Checkout
  * Trial: 14 days
+ *
+ * Referral-discount rule:
+ *   - If ANY refCode is present (body or cookie), apply REFER2_20OFF.
+ *   - This covers BOTH paths:
+ *       1. Referrer submits ReferralModal (applyReferralDiscount=true + refCode from body)
+ *       2. Friend clicks an invite link → ref_code cookie set by /api/referrals/track
+ *          or by landing-page code extraction → pricing page hits /api/checkout
+ *          with no body-level refCode but cookie present.
+ *   - Fallback: allow_promotion_codes so support can issue manual discounts.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@/lib/supabase/server';
+import { ensureReferralCoupon } from '@/lib/stripe';
 
 export const dynamic = 'force-dynamic';
 
@@ -79,6 +89,9 @@ export async function POST(request: NextRequest) {
 
     const cookieRefCode = request.cookies.get('ref_code')?.value;
     const refCode = refCodeFromBody || cookieRefCode || undefined;
+    // Any referral code present (body OR cookie) unlocks 20% off.
+    // applyReferralDiscount is retained for explicit-intent logging only.
+    const shouldDiscount = Boolean(refCode) || Boolean(applyReferralDiscount);
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: 'subscription',
@@ -92,11 +105,18 @@ export async function POST(request: NextRequest) {
       metadata: {
         priceId,
         refCode: refCode || '',
+        referralIntent: applyReferralDiscount ? 'referrer' : (refCode ? 'friend' : 'none'),
         schema: process.env.NEXT_PUBLIC_APP_SCHEMA || 'duowealth',
       },
     };
 
-    if (applyReferralDiscount && refCode) {
+    if (shouldDiscount) {
+      // Idempotent — first checkout for a new Stripe account may need the coupon created.
+      try {
+        await ensureReferralCoupon(getStripe(), REFERRAL_COUPON_ID);
+      } catch (couponErr) {
+        console.warn('[checkout] ensureReferralCoupon failed — continuing without discount', couponErr);
+      }
       sessionParams.discounts = [{ coupon: REFERRAL_COUPON_ID }];
     } else {
       sessionParams.allow_promotion_codes = true;
