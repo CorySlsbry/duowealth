@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Users, Bell, CreditCard, Shield, UserPlus, Mail } from 'lucide-react';
+import { Users, Bell, CreditCard, Shield, UserPlus, Building2 } from 'lucide-react';
+import BankConnect from '@/components/bank-connect';
 
 export default function SettingsPage() {
   const [incomeRatio, setIncomeRatio] = useState(50);
@@ -63,6 +64,20 @@ export default function SettingsPage() {
             {inviteSent ? 'Sent!' : 'Send Invite'}
           </button>
         </div>
+      </div>
+
+      {/* Bank Connections */}
+      <div className="bg-[#12121a] border border-[#2a2a3d] rounded-xl p-5">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-9 h-9 rounded-lg bg-[#22c55e]/15 flex items-center justify-center">
+            <Building2 size={18} className="text-[#22c55e]" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-[#e8e8f0]">Bank Connections</h3>
+            <p className="text-xs text-[#8888a0]">Link your accounts for automatic transaction syncing</p>
+          </div>
+        </div>
+        <BankConnect />
       </div>
 
       {/* Income Split */}

@@ -28,7 +28,8 @@
     "recharts": "^3.8.0",
     "resend": "^6.10.0",
     "stripe": "^20.4.1",
-    "tailwind-merge": "^3.5.0"
+    "tailwind-merge": "^3.5.0",
+    "teller-connect-react": "^0.2.3"
   },
   "devDependencies": {
     "@types/node": "^20",
