@@ -13,10 +13,13 @@ import {
   Bell,
   LogOut,
   Heart,
+  Bug,
   type LucideIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import BugReportModal from '@/components/bug-report-modal';
+import AIChatWidget from '@/components/ai-chat-widget';
 import { createBrowserClient } from '@supabase/ssr';
 
 interface NavItem {
@@ -38,6 +41,7 @@ export default function DashboardLayoutClient({ children }: { children: ReactNod
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [userName, setUserName] = useState('');
+  const [bugModalOpen, setBugModalOpen] = useState(false);
   const pathname = usePathname();
 
   const supabase = createBrowserClient(
@@ -123,7 +127,7 @@ export default function DashboardLayoutClient({ children }: { children: ReactNod
           })}
         </nav>
 
-        {/* User / Logout */}
+        {/* User / Bug Report / Logout */}
         <div className="border-t border-[#2a2a3d] p-3 space-y-2">
           {sidebarOpen && (
             <div className="flex items-center gap-3 px-3 py-2 bg-[#1a1a26] rounded-lg">
@@ -135,6 +139,13 @@ export default function DashboardLayoutClient({ children }: { children: ReactNod
               </div>
             </div>
           )}
+          <button
+            onClick={() => setBugModalOpen(true)}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[#8888a0] hover:text-[#f59e0b] hover:bg-[#f59e0b]/10 transition-all"
+          >
+            <Bug size={20} />
+            {sidebarOpen && <span>Report a Bug</span>}
+          </button>
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[#8888a0] hover:text-[#ef4444] hover:bg-[#ef4444]/10 transition-all"
@@ -180,7 +191,14 @@ export default function DashboardLayoutClient({ children }: { children: ReactNod
                 );
               })}
             </nav>
-            <div className="border-t border-[#2a2a3d] p-3">
+            <div className="border-t border-[#2a2a3d] p-3 space-y-1">
+              <button
+                onClick={() => { setMobileMenuOpen(false); setBugModalOpen(true); }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[#8888a0] hover:text-[#f59e0b] hover:bg-[#f59e0b]/10 transition-all"
+              >
+                <Bug size={20} />
+                <span>Report a Bug</span>
+              </button>
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[#8888a0] hover:text-[#ef4444] hover:bg-[#ef4444]/10 transition-all"
@@ -224,6 +242,16 @@ export default function DashboardLayoutClient({ children }: { children: ReactNod
           <div className="p-3 sm:p-4 md:p-6">{children}</div>
         </div>
       </div>
+
+      {/* Bug Report Modal */}
+      <BugReportModal
+        open={bugModalOpen}
+        onClose={() => setBugModalOpen(false)}
+        currentPage={navItems.find((n) => isActive(n.href))?.label ?? 'Dashboard'}
+      />
+
+      {/* AI Chat Widget */}
+      <AIChatWidget />
     </div>
   );
 }
