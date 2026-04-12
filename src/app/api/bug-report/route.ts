@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { sendEmail } from '@/lib/email';
+import { Resend } from 'resend';
 
 const BUG_REPORT_EMAIL = 'cory@salisburybookkeeping.com';
 
@@ -21,7 +21,10 @@ export async function POST(request: NextRequest) {
   const userEmail = user.email || 'unknown';
   const userName = user.user_metadata?.full_name || userEmail;
 
-  await sendEmail({
+  const resend = new Resend(process.env.RESEND_API_KEY || '');
+
+  const { data, error } = await resend.emails.send({
+    from: process.env.EMAIL_FROM || 'DuoWealth <hello@duowealth.app>',
     to: BUG_REPORT_EMAIL,
     subject: `[DuoWealth Bug] ${subject || 'Bug Report'}`,
     html: `
@@ -46,5 +49,11 @@ export async function POST(request: NextRequest) {
 </html>`,
   });
 
+  if (error) {
+    console.error('[bug-report] Resend error:', JSON.stringify(error));
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  console.log('[bug-report] Email sent:', data?.id);
   return NextResponse.json({ success: true });
 }
