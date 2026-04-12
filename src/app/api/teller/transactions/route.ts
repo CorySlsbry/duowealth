@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-
-const TELLER_API = 'https://api.teller.io';
+import { tellerFetch } from '@/lib/teller';
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -27,38 +26,24 @@ export async function GET(request: NextRequest) {
 
   for (const conn of connections) {
     try {
-      // If account_id specified, fetch only that account's transactions
       if (accountId) {
-        const res = await fetch(
-          `${TELLER_API}/accounts/${accountId}/transactions?count=${count}`,
-          {
-            headers: {
-              Authorization: 'Basic ' + Buffer.from(`${conn.access_token}:`).toString('base64'),
-            },
-          }
+        const res = await tellerFetch(
+          `/accounts/${accountId}/transactions?count=${count}`,
+          conn.access_token
         );
         if (res.ok) {
           const txns = await res.json();
           allTransactions.push(...txns);
         }
       } else {
-        // Fetch accounts first, then transactions for each
-        const acctRes = await fetch(`${TELLER_API}/accounts`, {
-          headers: {
-            Authorization: 'Basic ' + Buffer.from(`${conn.access_token}:`).toString('base64'),
-          },
-        });
+        const acctRes = await tellerFetch('/accounts', conn.access_token);
         if (!acctRes.ok) continue;
 
         const accounts = await acctRes.json();
         for (const acct of accounts) {
-          const res = await fetch(
-            `${TELLER_API}/accounts/${acct.id}/transactions?count=${count}`,
-            {
-              headers: {
-                Authorization: 'Basic ' + Buffer.from(`${conn.access_token}:`).toString('base64'),
-              },
-            }
+          const res = await tellerFetch(
+            `/accounts/${acct.id}/transactions?count=${count}`,
+            conn.access_token
           );
           if (res.ok) {
             const txns = await res.json();

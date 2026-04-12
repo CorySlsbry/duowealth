@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-
-const TELLER_API = 'https://api.teller.io';
+import { tellerFetch } from '@/lib/teller';
 
 export async function GET() {
   const supabase = await createClient();
@@ -24,23 +23,13 @@ export async function GET() {
 
   for (const conn of connections) {
     try {
-      const res = await fetch(`${TELLER_API}/accounts`, {
-        headers: {
-          Authorization: 'Basic ' + Buffer.from(`${conn.access_token}:`).toString('base64'),
-        },
-      });
-
+      const res = await tellerFetch('/accounts', conn.access_token);
       if (!res.ok) continue;
 
       const accounts = await res.json();
       for (const acct of accounts) {
-        // Fetch balance for each account
         try {
-          const balRes = await fetch(`${TELLER_API}/accounts/${acct.id}/balances`, {
-            headers: {
-              Authorization: 'Basic ' + Buffer.from(`${conn.access_token}:`).toString('base64'),
-            },
-          });
+          const balRes = await tellerFetch(`/accounts/${acct.id}/balances`, conn.access_token);
           if (balRes.ok) {
             acct.balances = await balRes.json();
           }

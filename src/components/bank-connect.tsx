@@ -57,7 +57,7 @@ export default function BankConnect() {
 
   const { open, ready } = useTellerConnect({
     applicationId: process.env.NEXT_PUBLIC_TELLER_APP_ID || 'app_pr0tjff9pvbhp573su000',
-    environment: 'sandbox' as const,
+    environment: 'development' as const,
     products: ['balance', 'transactions'],
     onSuccess: handleSuccess,
   });
