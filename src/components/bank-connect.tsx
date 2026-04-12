@@ -56,8 +56,8 @@ export default function BankConnect() {
   }, [fetchConnections]);
 
   const { open, ready } = useTellerConnect({
-    applicationId: process.env.NEXT_PUBLIC_TELLER_APP_ID || '',
-    environment: (process.env.NEXT_PUBLIC_TELLER_ENV as any) || 'sandbox',
+    applicationId: process.env.NEXT_PUBLIC_TELLER_APP_ID || 'app_pr0tjff9pvbhp573su000',
+    environment: 'sandbox' as const,
     products: ['balance', 'transactions'],
     onSuccess: handleSuccess,
   });
