@@ -3,14 +3,12 @@ import { cookies } from "next/headers";
 
 /**
  * Server-side Supabase client (Server Components, Route Handlers, Actions).
- * Scoped to the app's dedicated schema via NEXT_PUBLIC_APP_SCHEMA.
  */
 export async function createClient() {
   const cookieStore = await cookies();
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const schema = process.env.NEXT_PUBLIC_APP_SCHEMA || "public";
 
   if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error(
@@ -19,7 +17,6 @@ export async function createClient() {
   }
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
-    db: { schema },
     cookies: {
       getAll() {
         return cookieStore.getAll();

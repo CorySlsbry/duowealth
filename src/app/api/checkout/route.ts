@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
         priceId,
         refCode: refCode || '',
         referralIntent: applyReferralDiscount ? 'referrer' : (refCode ? 'friend' : 'none'),
-        schema: process.env.NEXT_PUBLIC_APP_SCHEMA || 'duowealth',
+        schema: 'duowealth',
       },
     };
 

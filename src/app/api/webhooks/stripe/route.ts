@@ -249,7 +249,7 @@ export async function POST(request: NextRequest) {
             priceId: session.metadata?.priceId || undefined,
             stripeCustomerId: session.customer as string,
             metadata: {
-              schema: process.env.NEXT_PUBLIC_APP_SCHEMA || 'duowealth',
+              schema: 'duowealth',
               checkoutSessionId: session.id,
               refCode: (session.metadata as any)?.refCode || '',
             },

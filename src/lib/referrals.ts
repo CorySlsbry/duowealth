@@ -16,14 +16,13 @@
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
-const SCHEMA = process.env.NEXT_PUBLIC_APP_SCHEMA || "public";
 const COUPON_ID = process.env.STRIPE_REFERRAL_COUPON_ID || "REFER2_20OFF";
 
 function adminClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { db: { schema: SCHEMA }, auth: { persistSession: false } }
+    { auth: { persistSession: false } }
   );
 }
 
